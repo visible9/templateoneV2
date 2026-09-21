@@ -127,6 +127,69 @@ Block::make('home_banner', admin_text('Hero'))
 		echo render_section_block('home_banner', $fields);
 	});
 
+/*02 Who it's for. A heading with an intro and tags, above a grid of numbered cards. The numbers come from the order of the cards.*/
+Block::make('home_audience', admin_text('Who it\'s for'))
+	->set_description(admin_text('A heading with an intro and tags above a grid of numbered cards.'))
+	->set_category('yk4-sections', admin_text('Page Sections'))
+	->set_icon('layout')
+	->set_keywords(explode(',', admin_text('audience,who,cards')))
+	->set_mode('both')
+	->add_tab(admin_text('Heading'), array(
+		Field::make('text', 'crb_audience_eyebrow', admin_text('Label'))
+			->set_default_value('Who it\'s for')
+			->set_help_text(admin_text('The small pill above the heading. Leave empty to hide it.')),
+		Field::make('text', 'crb_audience_title', admin_text('Heading'))
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur.'),
+		Field::make('textarea', 'crb_audience_text', admin_text('Description'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.'),
+		Field::make('complex', 'crb_audience_tags', admin_text('Tags'))
+			->set_collapsed(true)
+			->setup_labels(array('plural_name' => admin_text('Tags'), 'singular_name' => admin_text('Tag')))
+			->add_fields(array(
+				Field::make('text', 'label', admin_text('Label')),
+			))
+			->set_header_template('<%- label %>')
+			->set_default_value(array(
+				array('_id' => 'tag-1', 'label' => 'Lorem ipsum dolor'),
+				array('_id' => 'tag-2', 'label' => 'Lorem ipsum'),
+				array('_id' => 'tag-3', 'label' => 'Lorem ipsum dolor'),
+				array('_id' => 'tag-4', 'label' => 'Lorem ipsum dolor'),
+			))
+			->set_help_text(admin_text('Small outlined labels next to the description. Leave the list empty to hide them.')),
+	))
+	->add_tab(admin_text('Cards'), array(
+		Field::make('checkbox', 'crb_audience_numbers', admin_text('Show card numbers'))
+			->set_option_value('yes')
+			->set_default_value(true),
+		Field::make('complex', 'crb_audience_cards', admin_text('Cards'))
+			->set_collapsed(true)
+			->setup_labels(array('plural_name' => admin_text('Cards'), 'singular_name' => admin_text('Card')))
+			->add_fields(array(
+				Field::make('select', 'icon', admin_text('Icon'))
+					->add_options(theme_icon_options())
+					->set_default_value('target'),
+				Field::make('text', 'title', admin_text('Title'))
+					->set_help_text(admin_text('A card without a title is not shown.')),
+				Field::make('textarea', 'text', admin_text('Description'))
+					->set_rows(3),
+				Field::make('text', 'check', admin_text('Check Line'))
+					->set_help_text(admin_text('The line with a check mark at the bottom of the card. Leave empty to hide it.')),
+			))
+			->set_header_template('<%- title %>')
+			->set_default_value(array(
+				array('_id' => 'card-1', 'icon' => 'trend', 'title' => 'Lorem ipsum dolor sit', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.', 'check' => 'Lorem ipsum dolor sit amet'),
+				array('_id' => 'card-2', 'icon' => 'target', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.', 'check' => 'Lorem ipsum dolor sit amet'),
+				array('_id' => 'card-3', 'icon' => 'video', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut.', 'check' => 'Lorem ipsum dolor sit amet'),
+				array('_id' => 'card-4', 'icon' => 'chat', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.', 'check' => 'Lorem ipsum dolor sit amet'),
+				array('_id' => 'card-5', 'icon' => 'calendar', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.', 'check' => 'Lorem ipsum dolor sit amet, consectetur'),
+				array('_id' => 'card-6', 'icon' => 'clock', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.', 'check' => 'Lorem ipsum dolor sit amet'),
+			)),
+	))
+	->set_render_callback(function ($fields) {
+		echo render_section_block('home_audience', $fields);
+	});
+
 /*About (About Page). The About page's own take on the About section: the image sits on the right by default.*/
 Block::make('about_rev', admin_text('About (About Page)'))
 	->set_description(admin_text('The About page\'s own version of the About section.'))

@@ -8,6 +8,14 @@ function home_banner($atts, $content=null){
 add_shortcode('home_banner', 'home_banner');
 
 
+function home_audience($atts, $content=null){
+	ob_start();
+	include(locate_template('template-parts/sections/home/home-audience.php'));
+	return ob_get_clean();
+}
+add_shortcode('home_audience', 'home_audience');
+
+
 function home_services($atts, $content=null){
 	ob_start();	
 	include(locate_template('template-parts/sections/home/home-services.php'));

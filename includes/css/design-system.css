@@ -71,6 +71,12 @@
 	/*h4, questions, lead-ins*/
 	--stat: clamp(32px, 2.778vw, 40px);
 	/*numerals inside cards*/
+	--card-title: clamp(24px, 1.944vw, 28px);
+	/*the h3 of a card in a grid*/
+	--card-text: clamp(16px, 1.181vw, 17px);
+	/*copy inside a card*/
+	--card-note: clamp(14px, 1.042vw, 15px);
+	/*the small bold line at the foot of a card*/
 	--lead: clamp(18px, 1.389vw, 20px);
 	/*intro paragraphs*/
 	--default: 18px;

@@ -351,6 +351,24 @@ function theme_icon($name)
 }
 
 /**
+ * The icons a client can pick for a card, as the options of a select field: every icon of theme_icons() except the
+ * interface glyphs and the brand marks, so an icon added to the map shows up in the picker with no other change.
+ * The label is the icon's name run through admin_text(), so give it a Ukrainian in includes/admin-translations.php.
+ * The empty option is how the client hides the icon.
+ */
+function theme_icon_options()
+{
+	$options = array('' => admin_text('No icon'));
+	foreach (array_keys(theme_icons()) as $name) {
+		if (in_array($name, array('arrow-ur', 'arrow-r', 'plus', 'minus', 'menu', 'close', 'insta', 'yt'), true)) {
+			continue;
+		}
+		$options[$name] = admin_text(ucfirst($name));
+	}
+	return $options;
+}
+
+/**
  * The colours the client is allowed to change, mapped to the :root variables in
  * includes/css/design-system.css. Deliberately partial: --color-bg, --color-inverse and
  * --color-on-cta stay in code, because a dark page background (or a dark button) needs
