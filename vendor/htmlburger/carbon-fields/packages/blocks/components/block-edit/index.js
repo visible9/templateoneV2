@@ -8,7 +8,7 @@ import {
 	InnerBlocks,
 	BlockControls,
 	InspectorControls
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
 import { withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import {
@@ -38,7 +38,7 @@ class BlockEdit extends Component {
 	state = {
 		mode: this.props.container.settings.mode,
 		currentTab: this.props.supportsTabs
-			? Object.keys( this.props.container.settings.tabs )[ 0 ]
+			? Object.keys(this.props.container.settings.tabs)[0]
 			: null
 	};
 
@@ -49,17 +49,17 @@ class BlockEdit extends Component {
 	 * @param  {mixed}  value
 	 * @return {void}
 	 */
-	handleFieldChange = ( fieldId, value ) => {
+	handleFieldChange = (fieldId, value) => {
 		const { attributes, setAttributes } = this.props;
 
-		const fieldName = fieldId.replace( /^.+__(.+)?$/, '$1' );
+		const fieldName = fieldId.replace(/^.+__(.+)?$/, '$1');
 
-		setAttributes( {
+		setAttributes({
 			data: {
 				...attributes.data,
-				[ fieldName ]: value
+				[fieldName]: value
 			}
-		} );
+		});
 	}
 
 	/**
@@ -68,9 +68,9 @@ class BlockEdit extends Component {
 	 * @return {void}
 	 */
 	handleModeChange = () => {
-		this.setState( {
+		this.setState({
 			mode: this.isInEditMode ? 'preview' : 'edit'
-		} );
+		});
 	}
 
 	/**
@@ -79,10 +79,10 @@ class BlockEdit extends Component {
 	 * @param  {string} tab
 	 * @return {void}
 	 */
-	handleTabChange = ( tab ) => {
-		this.setState( {
+	handleTabChange = (tab) => {
+		this.setState({
 			currentTab: tab
-		} );
+		});
 	}
 
 	/**
@@ -110,36 +110,36 @@ class BlockEdit extends Component {
 	 * @param  {number} index
 	 * @return {Object}
 	 */
-	renderField = ( field, index ) => {
+	renderField = (field, index) => {
 		const {
 			clientId,
 			container,
 			attributes
 		} = this.props;
 
-		const FieldEdit = getFieldType( field.type, 'block' );
+		const FieldEdit = getFieldType(field.type, 'block');
 
-		if ( ! FieldEdit ) {
+		if (!FieldEdit) {
 			return null;
 		}
 
-		const id = `cf-${ clientId }__${ field.base_name }`;
-		const value = get( attributes.data, field.base_name, field.default_value );
+		const id = `cf-${clientId}__${field.base_name}`;
+		const value = get(attributes.data, field.base_name, field.default_value);
 
 		return (
 			<Field
-				key={ index }
-				id={ id }
-				field={ field }
+				key={index}
+				id={id}
+				field={field}
 			>
 				<FieldEdit
-					id={ id }
-					containerId={ container.id }
-					blockId={ clientId }
-					value={ value }
-					field={ field }
-					name={ field.base_name }
-					onChange={ this.handleFieldChange }
+					id={id}
+					containerId={container.id}
+					blockId={clientId}
+					value={value}
+					field={field}
+					name={field.base_name}
+					onChange={this.handleFieldChange}
 				/>
 			</Field>
 		);
@@ -151,14 +151,14 @@ class BlockEdit extends Component {
 	 * @param  {string[]} fieldNames
 	 * @return {Object[]}
 	 */
-	renderTabbedFields( fieldNames ) {
+	renderTabbedFields(fieldNames) {
 		const { fields } = this.props;
 
-		return map( fieldNames, ( fieldName, index ) => {
-			const field = find( fields, [ 'name', fieldName ] );
+		return map(fieldNames, (fieldName, index) => {
+			const field = find(fields, ['name', fieldName]);
 
-			return this.renderField( field, index );
-		} );
+			return this.renderField(field, index);
+		});
 	}
 
 	/**
@@ -169,7 +169,7 @@ class BlockEdit extends Component {
 	renderNonTabbedFields() {
 		return (
 			<div className="cf-block__fields">
-				{ this.props.fields.map( this.renderField ) }
+				{this.props.fields.map(this.renderField)}
 			</div>
 		);
 	}
@@ -190,38 +190,38 @@ class BlockEdit extends Component {
 			supportsInnerBlocks
 		} = this.props;
 
-		const innerBlocks = ( ( supportsInnerBlocks && this.isInEditMode ) && (
+		const innerBlocks = ((supportsInnerBlocks && this.isInEditMode) && (
 			<div className="cf-block__inner-blocks">
 				<InnerBlocks
-					template={ container.settings.inner_blocks.template }
-					templateLock={ container.settings.inner_blocks.template_lock }
-					allowedBlocks={ container.settings.inner_blocks.allowed_blocks }
+					template={container.settings.inner_blocks.template}
+					templateLock={container.settings.inner_blocks.template_lock}
+					allowedBlocks={container.settings.inner_blocks.allowed_blocks}
 				/>
 			</div>
-		) );
+		));
 
 		return (
 			<Fragment>
-				{ container.settings.inner_blocks.position === 'above' && innerBlocks }
+				{container.settings.inner_blocks.position === 'above' && innerBlocks}
 
-				{ supportsPreview && (
+				{supportsPreview && (
 					<BlockControls>
-						<ToolbarGroup label="Options" controls={ [ {
+						<ToolbarGroup label="Options" controls={[{
 							icon: this.isInEditMode
 								? 'visibility'
 								: 'hidden',
 							title: this.isInEditMode
-								? __( 'Show preview', 'carbon-fields-ui' )
-								: __( 'Hide preview', 'carbon-fields-ui' ),
+								? __('Show preview', 'carbon-fields-ui')
+								: __('Hide preview', 'carbon-fields-ui'),
 							onClick: this.handleModeChange
-						} ] } />
+						}]} />
 					</BlockControls>
-				) }
+				)}
 
-				{ ( this.isInEditMode && supportsTabs ) && (
+				{(this.isInEditMode && supportsTabs) && (
 					<div className="cf-block__tabs">
 						<ul className="cf-block__tabs-list">
-							{ map( container.settings.tabs, ( fieldNames, tabName ) => {
+							{map(container.settings.tabs, (fieldNames, tabName) => {
 								const classes = cx(
 									'cf-block__tabs-item',
 									{
@@ -231,85 +231,85 @@ class BlockEdit extends Component {
 
 								return (
 									<li
-										key={ tabName }
-										className={ classes }
-										onClick={ () => this.handleTabChange( tabName ) }
+										key={tabName}
+										className={classes}
+										onClick={() => this.handleTabChange(tabName)}
 									>
-										{ tabName }
+										{tabName}
 									</li>
 								);
-							} ) }
+							})}
 						</ul>
 					</div>
-				) }
+				)}
 
-				{ this.isInEditMode && (
+				{this.isInEditMode && (
 					supportsTabs
 						? (
-							map( container.settings.tabs, ( fieldNames, tabName ) => {
+							map(container.settings.tabs, (fieldNames, tabName) => {
 								return (
-									<div className="cf-block__fields" key={ tabName } hidden={ tabName !== currentTab }>
-										{ this.renderTabbedFields( fieldNames ) }
+									<div className="cf-block__fields" key={tabName} hidden={tabName !== currentTab}>
+										{this.renderTabbedFields(fieldNames)}
 									</div>
 								);
-							} )
+							})
 						)
 						: (
 							this.renderNonTabbedFields()
 						)
-				) }
+				)}
 
-				{ this.isInPreviewMode && (
+				{this.isInPreviewMode && (
 					<div className="cf-block__preview">
-						<ServerSideRender clientId={ clientId } />
+						<ServerSideRender clientId={clientId} />
 					</div>
-				) }
+				)}
 
-				{ container.settings.inner_blocks.position === 'below' && innerBlocks }
+				{container.settings.inner_blocks.position === 'below' && innerBlocks}
 
-				{ this.isInPreviewMode && (
+				{this.isInPreviewMode && (
 					<InspectorControls>
 						{
 							supportsTabs
 								? (
-									map( container.settings.tabs, ( fieldNames, tabName ) => {
+									map(container.settings.tabs, (fieldNames, tabName) => {
 										return (
-											<PanelBody key={ tabName } title={ tabName }>
+											<PanelBody key={tabName} title={tabName}>
 												<div className="cf-block__fields">
-													{ this.renderTabbedFields( fieldNames ) }
+													{this.renderTabbedFields(fieldNames)}
 												</div>
 											</PanelBody>
 										);
-									} )
+									})
 								)
 								: (
-									<PanelBody title={ __( 'Fields', 'carbon-fields-ui' ) }>
-										{ this.renderNonTabbedFields() }
+									<PanelBody title={__('Fields', 'carbon-fields-ui')}>
+										{this.renderNonTabbedFields()}
 									</PanelBody>
 								)
 						}
 					</InspectorControls>
-				) }
+				)}
 			</Fragment>
 		);
 	}
 }
 
-export default withSelect( ( select, { clientId, name } ) => {
-	const { hasBlockSupport } = select( 'core/blocks' );
-	const { getBlockRootClientId } = select( 'core/block-editor' );
+export default withSelect((select, { clientId, name }) => {
+	const { hasBlockSupport } = select('core/blocks');
+	const { getBlockRootClientId } = select('core/block-editor');
 	const {
 		getContainerDefinitionByBlockName,
 		getFieldDefinitionsByBlockName
-	} = select( 'carbon-fields/blocks' );
+	} = select('carbon-fields/blocks');
 
-	const rootClientId = getBlockRootClientId( clientId );
+	const rootClientId = getBlockRootClientId(clientId);
 
 	return {
-		container: getContainerDefinitionByBlockName( name ),
-		fields: getFieldDefinitionsByBlockName( name ),
-		supportsTabs: hasBlockSupport( name, 'tabs' ),
-		supportsPreview: hasBlockSupport( name, 'preview' ) && ! rootClientId,
-		supportsInnerBlocks: hasBlockSupport( name, 'innerBlocks' )
+		container: getContainerDefinitionByBlockName(name),
+		fields: getFieldDefinitionsByBlockName(name),
+		supportsTabs: hasBlockSupport(name, 'tabs'),
+		supportsPreview: hasBlockSupport(name, 'preview') && !rootClientId,
+		supportsInnerBlocks: hasBlockSupport(name, 'innerBlocks')
 	};
-} )( BlockEdit );
+})(BlockEdit);

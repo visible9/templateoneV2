@@ -9,7 +9,7 @@ A multi-page sibling theme exists separately. Keep this one focused on one-page 
 
 A page is assembled from **sections**. One section = one PHP file = one shortcode. The client puts shortcodes into the page content, and every section renders its own markup, its own CSS and its own fields. Nothing about the layout is editable from the WordPress editor, which is the point: the client edits text and images, never markup.
 
-A section is inserted from the block inserter (category **Page Sections**). Sections built the new way are **Carbon Fields blocks**: the fields are edited inside the block itself, and the block renders by running the section's shortcode. Sections still on the older way are listed under *Registered shortcodes* and keep their fields in the Page Sections metabox below the editor. `home_banner` (the hero) is the first block section; the rest follow the same pattern as they are rebuilt from the design.
+A section is inserted from the block inserter (category **Page Sections**). A section with fields is a **Carbon Fields block**: the fields are edited inside the block itself, and the block renders by running the section's shortcode. There is no Page Sections metabox and no section field stored as post meta (Custom Fields): a block keeps its values in the page content. A section with no fields yet is still in the inserter, and its block tells the builder to *add the required fields to the theme to display and edit them in the WordPress admin and on the website*. *Registered shortcodes* says which sections are which. `home_banner` (the hero) is the reference; the rest follow the same pattern as they are rebuilt from the design.
 
 The **site header and footer are not sections**: they are `header.php` and `footer.php`, on every page, and they read **Theme Options** (contact details, the logo, the header button, the footer) and the menus assigned in Appearance > Menus. See *Theme Options and menus*.
 
@@ -32,13 +32,12 @@ template-parts/sections/home/home-banner.php   (markup + <style> + fields)
 | `includes/css/design-system.css`                                  | **The design tokens and the shared section components** (buttons, pills, glass, icons, content width). Printed inline by `theme-styles.php` and loaded into the block editor canvas, so a block previews with the tokens it ships with. |
 | `includes/theme-options.php`                                      | The **Theme Options** admin page: one Carbon Fields container with tabs Contact Information, Header and Footer.                                                                                  |
 | `includes/admin-translations.php`                                 | The **Ukrainian admin text**, keyed by the English text written in the code. `admin_text()` in `functions.php` reads it when the site language is Ukrainian. |
-| `includes/section-blocks.php`                                     | One Carbon Fields `Block` per block section: its fields, its placeholder content as field defaults, and its render callback.                                                                      |
-| `includes/editor-sections.php`                                    | The **Page Sections** inserter category: title, description and wireframe icon of every section, the single-instance rule, and the canvas styles for block previews.                                |
+| `includes/section-blocks.php`                                     | One Carbon Fields `Block` per section that has fields: its fields, its placeholder content as field defaults, and its render callback. **The only place fields are defined for a section.** |
+| `includes/editor-sections.php`                                    | The **Page Sections** inserter category: title, description and wireframe icon of every section, the single-instance rule, the canvas styles for block previews, and the placeholder block (with the *add the required fields* message) of a section that has no fields yet. |
 | `shortcodes.php`                                                  | Registers one shortcode per section.                                                                                                                                                              |
-| `includes/fields.php`                                             | All Carbon Fields definitions.                                                                                                                                                                    |
 | `includes/theme-changes.php`                                      | Global vanilla JS: lazy loading, scroll animations, and the site header (burger menu, solid state on scroll, menu highlight). Hooked to `wp_footer`.                                              |
-| `template-parts/sections/home/*.php`                              | The 14 home sections.                                                                                                                                                                             |
-| `template-parts/pages/<page>/*.php`                               | Sections belonging to one inner page rather than to the home page. `about/section-about-rev.php` is the About page's take on the About section and reads the same `crb_about_*` fields, which are per page anyway. |
+| `template-parts/sections/home/*.php`                              | The 14 home sections. Only `home-banner.php` is built. The rest are empty stubs waiting for their fields. |
+| `template-parts/pages/<page>/*.php`                               | Sections belonging to one inner page rather than to the home page. `about/section-about-rev.php` is the About page's take on the About section: block `about_rev`, fields `crb_about_rev_*`. |
 | `header.php` / `footer.php`                                       | The **site header** (logo, centered menu, phone icon, floating over the hero) and the footer. Both read Theme Options and the Header / Footer menus, and print every part only when it is filled in. |
 | `index.php`, `archive.php`, `search.php`, `single.php`, `404.php` | Blog fallbacks. `blog-styles.php` and `single-blog-styles.php` hold their CSS.                                                                                                                    |
 | `fonts/`                                                          | Self-hosted, one subfolder per family: `bricolage-grotesque/` (heading and display, variable 400–700, latin + latin-ext + vietnamese), `urbanist/` (body, variable 300–700, latin + latin-ext) and `manrope/` (variable 400–700, the **Cyrillic fallback**: neither design font has Cyrillic, so Ukrainian text falls through to it). `site-fonts.css` declares all `@font-face` rules. Nothing is fetched from Google at runtime. `space-grotesk/` and `jetbrains-mono/` are left over from the previous look, no longer declared anywhere, and safe to delete. |
@@ -50,13 +49,11 @@ template-parts/sections/home/home-banner.php   (markup + <style> + fields)
 
 ## Registered shortcodes
 
-`home_banner`, `home_services`, `home_about`, `home_team`, `home_cta`, `home_results`, `home_testimonials`, `home_social`, `home_news`, `home_contact`, `home_mission`, `home_pricing`, `home_portfolio`, `home_faq`
+`home_banner`, `home_services`, `home_about`, `home_team`, `home_cta`, `home_results`, `home_testimonials`, `home_social`, `home_news`, `home_contact`, `home_mission`, `home_pricing`, `home_portfolio`, `home_faq`, `about_rev`
 
-Block sections (fields inside the block, defined in `includes/section-blocks.php`): `home_banner`. Everything else still uses the Page Sections metabox.
+**With fields (a Carbon Fields block in `includes/section-blocks.php`):** `home_banner`, `about_rev`.
 
-`about_rev` renders the About page's About section from `template-parts/pages/about/`. It shares the `crb_about_*` fields with `home_about`, so both tags are listed on that one tab.
-
-`home_banner`, `home_services`, `home_about`, `home_team`, `home_mission`, `home_results`, `home_portfolio`, `home_news`, `home_testimonials`, `home_cta`, `home_faq`, `home_pricing` and `home_contact` are built. The rest are empty stubs that still carry an older `apply_*_styles()` / `wp_footer` pattern — replace it with the inline `<style>` pattern described below when you build them.
+**Without fields yet:** the other thirteen. Their template is an empty stub, and in the editor their block shows *Add the required fields to the theme to display and edit them in the WordPress admin and on the website.* A section stops being one of these the moment a `Block::make()` exists for its tag: the inserter, the block name (`yk4/home-x` becomes `carbon-fields/home-x`) and the single-instance rule follow the block registry, nothing else is switched by hand. A page that already holds the old placeholder block of a section that then gets fields shows it as an unsupported block until it is replaced, though the front end keeps rendering the shortcode.
 
 ## Writing a section
 
@@ -73,7 +70,7 @@ Follow `home-banner.php` as the reference. Structure is always: `<style>` block 
 
 <section class="home-example" id="example">
 	<div class="content-width">
-		<h2 class="fade-from-bottom"><?= section_field('crb_example_title', 'Default heading'); ?></h2>
+		<h2 class="fade-from-bottom"><?= section_field('crb_example_title'); ?></h2>
 	</div>
 </section>
 ```
@@ -103,7 +100,7 @@ Hard rules:
 - **No localization of the page** — no `__()`, `_e()`, no text domains. Text on the page is hardcoded English. The admin panel is the one exception, see *Admin panel language*.
 - **No escaping** — no `esc_html()`, `esc_attr()`, `esc_url()`.
 - **Keep templates flat.** Do not declare PHP variables above the markup; call `section_field()` inline.
-- **Guard every element** with `if(section_field('crb_x', 'Default'))`, repeating the same default inside. Empty fields are how the client hides things — see the demo-mode rules under Fields.
+- **Guard every element** with `if(section_field('crb_x'))`. An empty field is how the client hides something. The placeholder copy is the field's default in `includes/section-blocks.php`, never a second copy in the template.
 - **Print nothing for an empty field, wrapper included.** No empty `<div>`, no `href=""`, no heading over an empty list. A link or button needs both its text and its address to show. Test a wrapper on its content (`if(filled_rows(...))`, `if($a || $b)`), not on its existence. Use `is_filled()` instead of a plain `if()` where `0` is a real value (a count, a percentage).
 - Add an animation class (`fade-in`, `fade-from-left`, `fade-from-right`, `fade-from-bottom`) to visual elements. A scroll script adds `.active` at 85% of the viewport; animations are disabled under 750px.
 - Give the outer `<section>` an `id` so the anchor menu can reach it. `scroll-margin-top` is already handled globally.
@@ -123,16 +120,17 @@ add_shortcode('home_example', 'home_example');
 
 ## Writing a block section
 
-A block section is the same section file plus three things: a Carbon Fields `Block`, a row in the inserter list and a render through the shortcode. `home_banner` is the reference.
+A block section is the same section file plus three things: a Carbon Fields `Block`, a row in the inserter list and a render through the shortcode. `home_banner` is the reference, `about_rev` the second one (tabs, a select, stats).
 
 1. **Fields** go in `includes/section-blocks.php`, with every label, tab name and help text in `admin_text()`, as `Block::make('home_x', 'Title')` with `->add_tab()` per group of fields (a hero has dozens, so tabs are not optional), `->set_mode('both')` (form by default, Preview toggle in the toolbar) and `->set_render_callback(function ($fields) { echo render_section_block('home_x', $fields); })`. The id is the shortcode tag, which is what makes the block name `carbon-fields/home-x`.
 2. **Placeholder content is the field default.** Every field gets `->set_default_value()` with the design's text: Lorem ipsum for copy, real labels for buttons and navigation, images from `images/`. The block is filled the moment it is inserted, and this is the only place the placeholder copy is written.
-3. **Templates call `section_field('crb_x_y')` with no default.** `render_section_block()` puts the block's values in scope (merged over the defaults, so a field added later shows its placeholder instead of nothing), and `[home_x]` typed by hand renders the defaults. An emptied field returns `''`, so the `if(section_field(...))` guards still hide elements, and the demo-mode rules of the Page Sections metabox do not apply.
-4. **Inserter row.** Add the section to `yk4_editor_sections()` in `includes/editor-sections.php` with `'native' => true`, a title, a description and an icon `shape`. Draw a new wireframe in `yk4_section_icon_shapes()` if no existing one reads like the section: the icon has to look like the section in the inserter. The single-instance rule (`multiple: false`) is applied there too, because sections carry an anchor `id`.
+3. **Templates call `section_field('crb_x_y')` with no default.** `render_section_block()` puts the block's values in scope (merged over the defaults, so a field added later shows its placeholder instead of nothing), and `[home_x]` typed by hand renders the defaults. An emptied field returns `''`, so the `if(section_field(...))` guards still hide elements.
+4. **Inserter row.** Every section already has a row in `yk4_editor_sections()` in `includes/editor-sections.php`: a title, a description and an icon `shape`. Adding the `Block::make()` is what makes it a block, there is no flag to set. Draw a new wireframe in `yk4_section_icon_shapes()` if no existing one reads like the section: the icon has to look like the section in the inserter. The single-instance rule (`multiple: false`) is applied there too, because sections carry an anchor `id`. Do not use a `rich_text` field in a block (Carbon Fields has no block support for it): use a `textarea` and print it through `wpautop()`, as `about_rev` does for its body text.
 5. **Fields use the `crb_<section>_<name>` names** like every other section. Repeaters are `complex` fields: give every default row a unique `_id` (the block editor removes rows by it) and call `->set_header_template()` after `add_fields()`.
 6. **The Preview must look right, and as wide as the page.** Without a `theme.json` the editor caps every block at 840px, so `yk4_editor_canvas_css()` in `includes/editor-sections.php` lifts the cap for every native section block. Carbon Fields also sizes the images of a Preview to `height: auto`, so a full cover image needs its own `height: 100%` (see `.absolute-cover` in `home-banner.php`). The editor canvas only loads `includes/css/design-system.css`, not `theme-styles.php`, so a section sets its own `box-sizing`, base `font-family` and heading `font-family`, and never relies on a document level rule. `defined('REST_REQUEST') && REST_REQUEST` is true while the editor renders the preview, so add an `in-editor` class there and undo anything that only makes sense on the live page (a `position: fixed` header becomes absolute). Scripts do not run in the preview, so the markup must already show its final state, and never leave a `fade-*` element depending on JS to become visible.
 7. **Images in a block go through `the_content` before shortcodes do**, so `filter_url()` turns their `src` into `data-url` for the lazy loader. Mark an image that is above the fold `loading="eager"` (add `fetchpriority="high"` to the largest) and it keeps its `src`.
 8. **The header is global.** A section never prints a site header. `header.php` does, floating over whatever comes first, and `page_has_hero()` (true when the page holds `home_banner`) only decides the look: over the hero it is see-through and turns solid once the page scrolls, everywhere else it is solid from the start and `#main-content` starts below it. A hero-like section needs top padding for the header (`--header-height` is what it takes).
+9. **The Preview / Edit toggle is saved with the page.** Carbon Fields keeps the mode in component state, so left alone every reload would reopen the block as the fields form. A click on the toggle now edits the page's post meta `_yk4_section_view_modes` (a JSON object of the sections switched away from their default, e.g. `{"carbon-fields/home-banner":"preview"}`, or an empty string), so the page turns dirty, the editor's Save / Update button lights up, and the choice is stored when it is pressed. Switching back to the saved mode clears the edit and the button goes off again. The edit is made with `undoIgnore`, so the toggle adds no undo step (a Ctrl+Z that flipped the attribute could not flip the block, which keeps its mode in state). It is meta and not a block attribute for exactly that reason: only a persistent block change makes the page dirty, and that one always lands in the undo history. On the next load `includes/editor-sections.php` prints the saved modes as `window.yk4SectionViewMode`, and `includes/js/editor-section-view-mode.js` writes them into the block's container definition in the `carbon-fields/blocks` store while it loads, before the editor mounts a block (the component reads its starting mode once, on mount). The same file registers, sanitises and prints the field (`yk4_register_section_view_modes_meta()`, pages only, `show_in_rest`); the JS builds the string sorted by block name, exactly as PHP stores it, because the editor compares the two to decide whether the page is dirty. A choice that is not saved is not kept across a reload. Nothing to add per section: every block with `->set_mode('both')` gets it. Do not restore a mode by clicking the toolbar button: the button only exists while the block is selected. Do not test against a real page's data: use a throwaway page in a rolled-back transaction.
 
 Image fields with `->set_value_type('url')` and a default from `images/` show a thumbnail in the block thanks to `theme_image_field_preview()` in `functions.php`. Output stays unescaped like the rest of the theme, so only people who may edit pages should be able to add this block.
 
@@ -201,51 +199,31 @@ Everything the theme adds to the admin panel reads in **English or Ukrainian, by
 
 ## Fields (Carbon Fields)
 
-This section describes the Page Sections metabox. Block sections keep their fields inside the block instead, see *Writing a block section*.
-
 Carbon Fields lives in the theme's `vendor/`, not as a plugin. The client installs the theme and the fields are simply there — no plugin, no licence, no importing field groups, and no admin UI that could delete a field.
 
-- Definitions go in `includes/fields.php`. Container is `post_meta` conditioned on `post_type = page`; the fields sit on whichever page holds the shortcode.
+**Every section field is defined inside its block**, in `includes/section-blocks.php`, see *Writing a block section*. There is no Page Sections metabox and no post meta container for sections: nothing about a section is stored as a Custom Field. A block keeps its values as JSON in the page content, so moving a page moves its content with it. The one post meta field the theme registers is `_yk4_section_view_modes` (the Preview / Edit toggle of the blocks). The other place fields live is Theme Options (`includes/theme-options.php`), stored as options.
+
 - **Admin labels go through `admin_text()`**: the English text in the definition, the Ukrainian in `includes/admin-translations.php`. See *Admin panel language*.
-- Field names are prefixed `crb_<section>_<name>`, e.g. `crb_banner_title`.
-- Read values **only** through the helper:
+- Field names are prefixed `crb_<section>_<name>`, e.g. `crb_banner_title`, `crb_about_rev_title`. A name is unique across all blocks, because `section_block_defaults_for()` finds the owning block from it.
+- Read values **only** through the helper, with no default:
 
 ```php
-<?= section_field('crb_banner_title', 'Fallback heading'); ?>
+<?= section_field('crb_banner_title'); ?>
 ```
 
-`section_field()` runs a **per-section demo mode**, which is the rule every template has to be written around:
+Without `vendor/` the section blocks are not registered, `section_field()` returns its `$default` (empty) and the theme never fatals.
 
-- While a section has no content at all, every field of that section returns its default. A fresh install looks finished instead of empty.
-- The moment the client fills **any** field of that section, the section goes live and an empty field returns an empty string. That is how an element gets hidden — the client clears the text and it disappears. No `hide` checkboxes anywhere.
-- Sections are independent: filling in About does not switch Banner out of demo mode. `section_has_content()` decides by the `_crb_<section>_` meta prefix, so the `crb_<section>_<name>` naming is load-bearing, not cosmetic.
-- Without `vendor/` the defaults are always returned, so the theme never fatals and never renders blank.
-
-**Therefore: wrap every element in** `if(section_field(...))` **with the same default you print.** A heading, a paragraph, an image, a whole stats row — anything that can end up empty in live mode needs a guard, or the page will render empty tags. Carbon Fields writes a meta row for every field on save, including empty ones, so detection is by non-empty *value*, never by the key existing.
-
-Admin `html` note fields must be named `crb_<section>_note`; that suffix is skipped by `section_has_content()` because Carbon Fields exposes the note markup as the field's `default_value` and it can end up saved as meta.
-
-Never call `carbon_get_the_post_meta()` directly in a section, and never let a section fatal when the library is missing.
+Wrap every element in `if(section_field(...))`: a heading, a paragraph, an image, a whole stats row — anything that can end up empty needs a guard, or the page renders empty tags. Never call `carbon_get_post_meta()` in a section.
 
 Image fields use `->set_value_type('url')` so templates get a URL and stay flat.
 
-Repeating content uses a `complex` field, `crb_team_members` being the reference — the client decides how many rows there are, so a fixed set of `crb_x_item_1_*` slots is only right when the count is part of the design. It stays inside demo mode: an empty complex reads as no content, so the section prints the demo array passed as the `section_field()` default and the template keeps one copy of the card markup. Write that default as one `array(...)` per row inline in the `foreach`, and guard the row on whichever subfield is required (a member with no name is skipped). A `complex` nested inside a `complex` works too, which is how each member carries its own social links.
+Repeating content uses a `complex` field: the client decides how many rows there are, so a fixed set of `crb_x_item_1_*` slots is only right when the count is part of the design. Give every default row a unique `_id`, write the placeholder rows as the field's default value, guard the row on whichever subfield is required (a member with no name is skipped) and keep one copy of the card markup in the template. A `complex` nested inside a `complex` works too.
 
-Social links go through `social_networks()` in `functions.php` — one map holding the label, the inline SVG icon and the admin option list. `social_icon()` and `social_label()` read from it, `social_network_options()` feeds the `select` in `includes/fields.php`. Add a network there and nothing else changes.
+Social links go through `social_networks()` in `functions.php` — one map holding the label, the inline SVG icon and the admin option list. `social_icon()` and `social_label()` read from it, `social_network_options()` feeds the `select` in `includes/theme-options.php`. Add a network there and nothing else changes.
 
-A section can also draw its content from WordPress instead of from fields — `home_news` is the reference. It lists the three latest posts with `get_posts()` and falls back to three hardcoded demo cards while the blog is still empty, so the fields only cover the heading and the button. Real posts without a featured image fall back to a theme placeholder from `images/`.
+A section can also draw its content from WordPress instead of from fields, listing the latest posts with `get_posts()` for example. The fields then only cover the heading and the button.
 
-Everything lives in one `Page Sections` container with `->set_layout('tabbed-vertical')` and an `add_tab()` per section, so 14 sections do not become 14 metaboxes. Add a tab, never a second container.
-
-Each `add_tab()` is wrapped in `if(page_uses_section($shortcodes, $prefix))`, so the metabox only carries the tabs for the shortcodes that page actually holds — a page with three sections shows three tabs instead of all fourteen. `$shortcodes` is the tag that renders the section, or an array of tags when the same fields serve more than one section; `$prefix` is the `crb_<section>` prefix those fields share. The container itself is only created when the page holds at least one of these sections, so a page made of block sections gets no empty Page Sections box. The old `Footer` tab is gone: the footer lives in Theme Options.
-
-The prefix is not decoration. Carbon Fields deletes every field it knows about that is missing from the submitted form, so a tab that were registered but not rendered would wipe its section on the next save. `page_uses_section()` therefore also returns true whenever `section_has_content()` says the section already holds something — a hidden tab is only ever a tab with nothing to lose. It returns true for everything when the edited page cannot be resolved from the request, a page being created among them, since fields are registered long before the global `$post` exists.
-
-The block editor reloads the metabox on save, so a tab appears on the save that adds its shortcode to the content, not while the block is still unsaved.
-
-Gotcha: Carbon Fields stores meta with a leading underscore. `get_post_meta($id, 'crb_banner_title')` returns nothing — the real key is `_crb_banner_title`.
-
-Gotcha: a `complex` subfield must not be called `value`. Complex rows are stored as `_field|subfield|row|index|value`, so that name collides with the trailing segment — the row saves with an empty subfield slot and reads back as an empty array, silently. `home_results` uses `number` for exactly this reason. `_type` is taken as well.
+Gotcha: a `complex` subfield in **Theme Options** must not be called `value`. Those rows are stored as `_field|subfield|row|index|value`, so that name collides with the trailing segment — the row saves with an empty subfield slot and reads back as an empty array, silently. `_type` is taken as well.
 
 ## Forms
 

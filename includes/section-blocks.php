@@ -126,3 +126,62 @@ Block::make('home_banner', admin_text('Hero'))
 	->set_render_callback(function ($fields) {
 		echo render_section_block('home_banner', $fields);
 	});
+
+/*About (About Page). The About page's own take on the About section: the image sits on the right by default.*/
+Block::make('about_rev', admin_text('About (About Page)'))
+	->set_description(admin_text('The About page\'s own version of the About section.'))
+	->set_category('yk4-sections', admin_text('Page Sections'))
+	->set_icon('layout')
+	->set_keywords(explode(',', admin_text('about,intro,story')))
+	->set_mode('both')
+	->add_tab(admin_text('Content'), array(
+		Field::make('text', 'crb_about_rev_eyebrow', admin_text('Eyebrow'))
+			->set_default_value('Lorem ipsum')
+			->set_help_text(admin_text('Small label above the heading. Leave empty to hide it.')),
+		Field::make('text', 'crb_about_rev_title', admin_text('Heading'))
+			->set_default_value('Lorem ipsum dolor sit amet consectetur'),
+		Field::make('textarea', 'crb_about_rev_text', admin_text('Intro'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.')
+			->set_help_text(admin_text('The larger paragraph right under the heading.')),
+		Field::make('textarea', 'crb_about_rev_body', admin_text('Body Text'))
+			->set_rows(6)
+			->set_default_value("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat, duis aute irure dolor in reprehenderit.\n\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.")
+			->set_help_text(admin_text('A blank line starts a new paragraph.')),
+		Field::make('image', 'crb_about_rev_image', admin_text('Image'))
+			->set_value_type('url')
+			->set_default_value(get_template_directory_uri() . '/images/about.webp')
+			->set_help_text(admin_text('Optional. Leave empty to drop the image and centre the text.')),
+		Field::make('select', 'crb_about_rev_layout', admin_text('Image Position'))
+			->add_options(array(
+				'left' => admin_text('Left'),
+				'right' => admin_text('Right'),
+			))
+			->set_default_value('right')
+			->set_help_text(admin_text('Which side the image sits on. The text takes the other side.')),
+		Field::make('text', 'crb_about_rev_button_text', admin_text('Button Text'))
+			->set_default_value('Talk to us')
+			->set_help_text(admin_text('The button shows only when both its text and its link are filled in.')),
+		Field::make('text', 'crb_about_rev_button_link', admin_text('Button Link'))
+			->set_default_value('#contact'),
+	))
+	->add_tab(admin_text('Stats'), array(
+		Field::make('text', 'crb_about_rev_stat_1_value', admin_text('Stat 1 Value'))
+			->set_default_value('12+')
+			->set_help_text(admin_text('Leave empty to hide this stat.')),
+		Field::make('text', 'crb_about_rev_stat_1_label', admin_text('Stat 1 Label'))
+			->set_default_value('Lorem ipsum'),
+		Field::make('text', 'crb_about_rev_stat_2_value', admin_text('Stat 2 Value'))
+			->set_default_value('180')
+			->set_help_text(admin_text('Leave empty to hide this stat.')),
+		Field::make('text', 'crb_about_rev_stat_2_label', admin_text('Stat 2 Label'))
+			->set_default_value('Dolor sit amet'),
+		Field::make('text', 'crb_about_rev_stat_3_value', admin_text('Stat 3 Value'))
+			->set_default_value('98%')
+			->set_help_text(admin_text('Leave empty to hide this stat.')),
+		Field::make('text', 'crb_about_rev_stat_3_label', admin_text('Stat 3 Label'))
+			->set_default_value('Consectetur elit'),
+	))
+	->set_render_callback(function ($fields) {
+		echo render_section_block('about_rev', $fields);
+	});

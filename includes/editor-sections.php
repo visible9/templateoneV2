@@ -3,18 +3,16 @@
 /**
  * Puts the theme's sections in the block editor's inserter, as their own
  * "Page Sections" category, so the client can browse and insert them instead
- * of typing shortcode tags by hand. Each entry becomes a tiny custom block
- * (yk4/home-banner, yk4/home-about, ...) whose save() writes out nothing but
- * the plain shortcode text - [home_banner] - so the page content, and every
- * existing shortcode.php/do_shortcode() render path, stays exactly as it was.
+ * of typing shortcode tags by hand. yk4_editor_sections() lists every shortcode once.
  *
- * Only sections with real fields belong in yk4_editor_sections(): add a
- * shortcode here once its tab exists in includes/fields.php, not before.
- *
- * A section marked 'native' is a Carbon Fields block (includes/section-blocks.php) whose fields are
+ * A section that has a Carbon Fields block (includes/section-blocks.php) is "native": its fields are
  * edited inside the block itself. Carbon Fields registers that block, so this file only decorates it:
- * the wireframe icon, the single-instance rule and the canvas styles. Everything else in the list
- * still works the old way, as a tiny block whose save() writes the plain shortcode.
+ * the wireframe icon, the single-instance rule and the canvas styles. Adding a Block::make() there is
+ * all it takes, nothing here needs to change.
+ *
+ * A section with no block there has no fields yet. It becomes a tiny custom block (yk4/home-about, ...)
+ * whose save() writes out nothing but the plain shortcode text - [home_about] - and whose editor view
+ * tells the builder to add the required fields to the theme.
  */
 
 /**
@@ -45,12 +43,12 @@ function yk4_section_icon_shapes()
 }
 
 /**
- * Every shortcode currently backed by a Carbon Fields tab, keyed by tag.
+ * Every section shortcode, keyed by tag: the title, description and icon shape shown in the inserter.
  */
 function yk4_editor_sections()
 {
 	return array(
-		'home_banner' => array('title' => 'Hero', 'description' => 'A full screen hero with a background image: headline, buttons, social proof and three highlight cards.', 'shape' => 'hero-cards', 'native' => true),
+		'home_banner' => array('title' => 'Hero', 'description' => 'A full screen hero with a background image: headline, buttons, social proof and three highlight cards.', 'shape' => 'hero-cards'),
 		'home_about' => array('title' => 'About', 'description' => 'Intro text next to an image, with optional stats.', 'shape' => 'split'),
 		'home_mission' => array('title' => 'Mission', 'description' => 'A heading and intro above a set of tagged items.', 'shape' => 'tags'),
 		'home_services' => array('title' => 'Services', 'description' => 'A grid of service cards.', 'shape' => 'grid'),
@@ -68,10 +66,19 @@ function yk4_editor_sections()
 	);
 }
 
+/**
+ * Does the section have its fields, that is a Carbon Fields block registered for it in
+ * includes/section-blocks.php? Carbon Fields registers its blocks on init, so this only answers
+ * from init priority 10 on: everything that asks runs after that.
+ */
+function yk4_section_is_native($tag)
+{
+	return WP_Block_Type_Registry::get_instance()->is_registered(section_block_name($tag));
+}
+
 function yk4_editor_section_block_name($tag)
 {
-	$sections = yk4_editor_sections();
-	if (!empty($sections[$tag]['native'])) {
+	if (yk4_section_is_native($tag)) {
 		return section_block_name($tag);
 	}
 	return 'yk4/' . str_replace('_', '-', $tag);
@@ -98,10 +105,10 @@ function yk4_register_section_block_category($categories)
 add_filter('block_categories_all', 'yk4_register_section_block_category');
 
 /**
- * Registers one tiny block per section. Each has supports.multiple => false,
+ * Registers one tiny block per section that has no fields yet. Each has supports.multiple => false,
  * which is what disables a section in the inserter once it is already on the
  * page - the same native behaviour a single-instance block like Post Title
- * gets in the site editor.
+ * gets in the site editor. Runs after Carbon Fields has registered the blocks that do have fields.
  */
 function yk4_register_section_blocks()
 {
@@ -110,7 +117,7 @@ function yk4_register_section_blocks()
 		return;
 	}
 	foreach ($sections as $tag => $section) {
-		if (!empty($section['native'])) {
+		if (yk4_section_is_native($tag)) {
 			continue;
 		}
 		register_block_type(yk4_editor_section_block_name($tag), array(
@@ -127,16 +134,17 @@ function yk4_register_section_blocks()
 		));
 	}
 }
-add_action('init', 'yk4_register_section_blocks');
+add_action('init', 'yk4_register_section_blocks', 20);
 
 /**
- * A native section block is registered by Carbon Fields, so it gets the same single-instance rule the
- * tiny blocks above declare. The editor script repeats it on the client, where Carbon Fields sets its own supports.
+ * A section block registered by Carbon Fields gets the same single-instance rule the tiny blocks above
+ * declare. This runs while the block is being registered, so it goes by the block name. The editor script
+ * repeats the rule on the client, where Carbon Fields sets its own supports.
  */
 function yk4_native_section_block_args($args, $name)
 {
 	foreach (yk4_editor_sections() as $tag => $section) {
-		if (!empty($section['native']) && section_block_name($tag) === $name) {
+		if (section_block_name($tag) === $name) {
 			$args['supports'] = array_merge(isset($args['supports']) ? (array) $args['supports'] : array(), array('multiple' => false, 'reusable' => false));
 		}
 	}
@@ -157,7 +165,7 @@ function yk4_editor_canvas_css()
 {
 	$css = '';
 	foreach (yk4_editor_sections() as $tag => $section) {
-		if (!empty($section['native'])) {
+		if (yk4_section_is_native($tag)) {
 			$wrapper = '.editor-styles-wrapper .wp-block[data-type="' . section_block_name($tag) . '"]';
 			$css .= $wrapper . '{max-width: none;}' . "\n";
 		}
@@ -185,8 +193,75 @@ function yk4_enqueue_editor_canvas_styles()
 add_action('enqueue_block_assets', 'yk4_enqueue_editor_canvas_styles');
 
 /**
+ * The Preview / Edit toggle of a section block is saved with the page, in this post meta field. Its value is a
+ * JSON object naming the sections switched away from the mode they open in, for example
+ * {"carbon-fields/home-banner":"preview"}, or an empty string when there are none. It is a meta field rather
+ * than a block attribute on purpose: the editor script edits it the way the editor edits any field, so the page
+ * turns dirty and the Save / Update button lights up, while the toggle stays out of the undo history.
+ */
+function yk4_section_view_modes_meta_key()
+{
+	return '_yk4_section_view_modes';
+}
+
+/**
+ * Turns what was stored, or what the editor sent, into a clean map of block name => 'preview' or 'edit'.
+ * Only Carbon Fields block names and the two known modes get through. The map is sorted by name, so the same
+ * choices always give the same string: the editor compares it with the saved one to decide whether the page
+ * has changed.
+ */
+function yk4_clean_section_view_modes($value)
+{
+	$modes = is_string($value) ? json_decode($value, true) : $value;
+	$clean = array();
+	if (!is_array($modes)) {
+		return $clean;
+	}
+	foreach ($modes as $block => $mode) {
+		if (is_string($block) && preg_match('#^carbon-fields/[a-z0-9_-]+$#', $block) && ($mode === 'preview' || $mode === 'edit')) {
+			$clean[$block] = $mode;
+		}
+	}
+	ksort($clean);
+	return $clean;
+}
+
+function yk4_sanitize_section_view_modes($value)
+{
+	$modes = yk4_clean_section_view_modes($value);
+	return $modes ? wp_json_encode($modes, JSON_UNESCAPED_SLASHES) : '';
+}
+
+function yk4_can_edit_section_view_modes($allowed, $meta_key, $post_id)
+{
+	return current_user_can('edit_post', $post_id);
+}
+
+/**
+ * Registers the field on pages, the post type the sections live on. show_in_rest is what lets the block editor
+ * load it with the page and send it back with the page when Save is pressed. The underscore keeps it out of
+ * the Custom Fields box, so it needs its own auth callback to be editable through the REST API.
+ */
+function yk4_register_section_view_modes_meta()
+{
+	if (!yk4_editor_sections_available()) {
+		return;
+	}
+	register_post_meta('page', yk4_section_view_modes_meta_key(), array(
+		'type' => 'string',
+		'single' => true,
+		'default' => '',
+		'show_in_rest' => true,
+		'sanitize_callback' => 'yk4_sanitize_section_view_modes',
+		'auth_callback' => 'yk4_can_edit_section_view_modes',
+	));
+}
+add_action('init', 'yk4_register_section_view_modes_meta');
+
+/**
  * Editor-only script and styles that give each block above its edit()/save()
- * behaviour - see includes/js/editor-sections.js. Limited to page screens,
+ * behaviour - see includes/js/editor-sections.js - and the script that saves a
+ * section's Preview / Edit toggle with the page. Limited to page screens,
  * since that is the only post type the sections' fields are registered on.
  */
 function yk4_enqueue_section_editor_assets()
@@ -209,7 +284,7 @@ function yk4_enqueue_section_editor_assets()
 			'title' => admin_text($section['title']),
 			'description' => admin_text($section['description']),
 			'icon' => isset($shapes[$section['shape']]) ? $shapes[$section['shape']] : '',
-			'native' => !empty($section['native']),
+			'native' => yk4_section_is_native($tag),
 		);
 	}
 
@@ -223,9 +298,27 @@ function yk4_enqueue_section_editor_assets()
 		file_exists($js_path) ? filemtime($js_path) : false,
 		true
 	);
+	/*
+	 * Saves the Preview / Edit toggle of the section blocks with the page, see includes/js/editor-section-view-mode.js.
+	 * It needs carbon-fields-blocks, whose store it writes to before the editor mounts a block. The modes saved
+	 * with the page are printed here because the editor has not loaded the page yet while the script runs.
+	 */
+	$view_mode_path = get_template_directory() . '/includes/js/editor-section-view-mode.js';
+	wp_enqueue_script(
+		'yk4-editor-section-view-mode',
+		get_template_directory_uri() . '/includes/js/editor-section-view-mode.js',
+		array('carbon-fields-blocks', 'wp-blocks', 'wp-data', 'wp-i18n'),
+		file_exists($view_mode_path) ? filemtime($view_mode_path) : false,
+		true
+	);
+	$view_modes = array(
+		'metaKey' => yk4_section_view_modes_meta_key(),
+		'modes' => (object) yk4_clean_section_view_modes(get_post_meta((int) get_the_ID(), yk4_section_view_modes_meta_key(), true)),
+	);
+	wp_add_inline_script('yk4-editor-section-view-mode', 'window.yk4SectionViewMode = ' . wp_json_encode($view_modes) . ';', 'before');
 	$strings = array(
 		'used' => admin_text('Already used on this page — remove the existing one to add it again.'),
-		'instructions' => admin_text('Edit this section’s content on the Page Sections tab, below the content editor.'),
+		'instructions' => admin_text('Add the required fields to the theme to display and edit them in the WordPress admin and on the website.'),
 	);
 	wp_add_inline_script('yk4-editor-sections', 'window.yk4EditorSections = ' . wp_json_encode($data) . '; window.yk4EditorStrings = ' . wp_json_encode($strings) . ';', 'before');
 

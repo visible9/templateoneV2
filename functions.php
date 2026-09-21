@@ -63,7 +63,6 @@ add_filter('gettext_carbon-fields', 'theme_carbon_fields_labels', 10, 2);
 
 function register_theme_fields()
 {
-	include(locate_template('includes/fields.php'));
 	include(locate_template('includes/theme-options.php'));
 	include(locate_template('includes/section-blocks.php'));
 }
@@ -87,228 +86,33 @@ function theme_image_field_preview($metadata)
 add_filter('carbon_fields_attachment_not_found_metadata', 'theme_image_field_preview');
 
 /**
- * Should this section's tab be part of the Page Sections metabox?
- *
- * True when the page being edited holds one of the shortcodes that render the
- * section, so the client only ever sees the tabs for the sections actually on
- * that page. $shortcodes is one tag or a list of them; $prefix is the
- * crb_<section> prefix the section's fields share.
- *
- * Also true when the section already holds content, whatever the shortcode
- * says. That part is not a convenience, it is what keeps the data safe: Carbon
- * Fields deletes every field it knows about that is missing from the submitted
- * form, so a tab that is registered but never rendered would wipe the section
- * on the next save. Keeping filled sections registered means a hidden tab
- * always covers meta that is empty anyway.
- *
- * Everything is registered when the edited page cannot be resolved, so no field
- * is ever unreachable on a screen this does not know about - a brand new page
- * among them, since it has no saved content to read yet.
- */
-function page_uses_section($shortcodes, $prefix)
-{
-	$page = edited_page();
-	$reason = 'no page resolved, so every tab is registered';
-	if ($page) {
-		$reason = '';
-		foreach ((array) $shortcodes as $shortcode) {
-			if (has_shortcode($page->post_content, $shortcode)) {
-				$reason = 'the content holds [' . $shortcode . ']';
-				break;
-			}
-		}
-		/*section_has_content() reads the crb_<section>_ prefix off a field name, so any name under the section answers for all of them*/
-		if (!$reason && section_has_content($prefix . '_name', $page->ID)) {
-			$reason = 'the section already holds saved content';
-		}
-	}
-	$registered = (bool) $reason;
-	page_section_decisions($prefix, ($registered ? 'yes - ' : 'no - ') . ($reason ? $reason : 'no shortcode on the page and nothing saved'));
-	return $registered;
-}
-
-/**
- * Where each shortcode on the edited page first appears in its content, keyed
- * by tag name. Powers the tab order in includes/fields.php, so the metabox
- * lists sections in the same order the client dropped their shortcodes in,
- * not the fixed order they are defined in the file.
- */
-function page_shortcode_positions()
-{
-	static $positions = null;
-	if ($positions !== null) {
-		return $positions;
-	}
-	$positions = array();
-	$page = edited_page();
-	if ($page) {
-		preg_match_all('/' . get_shortcode_regex() . '/s', $page->post_content, $matches, PREG_OFFSET_CAPTURE);
-		foreach ($matches[2] as $match) {
-			list($tag, $offset) = $match;
-			if (!isset($positions[$tag])) {
-				$positions[$tag] = $offset;
-			}
-		}
-	}
-	return $positions;
-}
-
-/**
- * Earliest position any of a section's shortcodes appear at, or null when none
- * are in the content. usort() sinks null to the end, which is what keeps a
- * section that only survives via section_has_content() (no shortcode left on
- * the page) trailing after everything that is actually there.
- */
-function section_position($shortcodes)
-{
-	$positions = page_shortcode_positions();
-	$min = null;
-	foreach ((array) $shortcodes as $shortcode) {
-		if (isset($positions[$shortcode])) {
-			$min = $min === null ? $positions[$shortcode] : min($min, $positions[$shortcode]);
-		}
-	}
-	return $min;
-}
-
-/**
- * Keeps a note of what page_uses_section() decided for each section, so the
- * sections_debug report below can explain the metabox rather than guess at it.
- * Called with arguments it records one decision, called without it returns them all.
- */
-function page_section_decisions($prefix = '', $reason = '')
-{
-	static $decisions = array();
-	if ($prefix) {
-		$decisions[$prefix] = $reason;
-	}
-	return $decisions;
-}
-
-/**
- * The page currently open in the editor, or null when there is no saved page
- * behind the request. Fields are registered long before the global $post
- * exists, so the id comes off the request itself: post.php passes it as a query
- * argument on both the initial load and the block editor's metabox reload, the
- * classic editor posts it back as post_ID.
- *
- * Outside the admin this is always null, which registers every field. That is
- * required rather than merely safe: carbon_get_post_meta() resolves a value
- * through the registered containers, so a field the front end never registered
- * would read back empty.
- */
-function edited_page()
-{
-	static $page = false;
-	if ($page !== false) {
-		return $page;
-	}
-	$page = null;
-	if (!is_admin()) {
-		return $page;
-	}
-	$post_id = 0;
-	foreach (array('post_ID', 'post') as $key) {
-		if (isset($_REQUEST[$key]) && (int) $_REQUEST[$key]) {
-			$post_id = (int) $_REQUEST[$key];
-			break;
-		}
-	}
-	if ($post_id) {
-		$post = get_post($post_id);
-		if ($post && $post->post_type === 'page') {
-			$page = $post;
-		}
-	}
-	return $page;
-}
-
-/**
- * Temporary: add &sections_debug=1 to a page edit URL to see which tabs the
- * filter kept and why, and when the server last received the three files that
- * make the decision. Delete this function and its hook once the metabox behaves.
- */
-function page_sections_report()
-{
-	if (!isset($_GET['sections_debug']) || !current_user_can('manage_options')) {
-		return;
-	}
-	$page = edited_page();
-	$report = '<h2>Page Sections filter</h2><p>Edited page: ' . ($page ? '#' . $page->ID . ' "' . $page->post_title . '"' : 'not resolved from this request') . '</p>';
-
-	$report .= '<p>Shortcodes found in the content: ';
-	$found = array();
-	if ($page) {
-		foreach (array_keys($GLOBALS['shortcode_tags']) as $tag) {
-			if (has_shortcode($page->post_content, $tag)) {
-				$found[] = '[' . $tag . ']';
-			}
-		}
-	}
-	$report .= ($found ? implode(' ', $found) : 'none') . '</p>';
-
-	$report .= '<table cellpadding="6" border="1" style="border-collapse:collapse"><tr><th>Section</th><th>Tab registered</th></tr>';
-	foreach (page_section_decisions() as $prefix => $reason) {
-		$report .= '<tr><td>' . $prefix . '</td><td>' . $reason . '</td></tr>';
-	}
-	$report .= '</table>';
-
-	$report .= '<p>Files on the server:</p><ul>';
-	foreach (array('functions.php', 'shortcodes.php', 'includes/fields.php') as $file) {
-		$path = get_template_directory() . '/' . $file;
-		$report .= '<li>' . $file . ' - ' . (file_exists($path) ? 'last changed ' . gmdate('Y-m-d H:i', filemtime($path)) . ' UTC' : 'missing') . '</li>';
-	}
-	$report .= '</ul><p>[about_rev] registered: ' . (shortcode_exists('about_rev') ? 'yes' : 'no') . '</p>';
-
-	wp_die($report, 'Page Sections filter', array('response' => 200, 'back_link' => true));
-}
-add_action('admin_head', 'page_sections_report');
-
-/**
  * Reads a section field. Keeps the templates flat.
  *
- * Demo mode: while a section has no content at all the defaults are printed, so a
- * fresh install never looks empty. The moment any field of that same section is
- * filled the section goes live and an empty field renders as empty, which is how
- * the client hides an element - clear the text and it disappears.
- * Without Carbon Fields the theme always falls back to the defaults.
- *
- * Sections built as blocks (see includes/section-blocks.php) skip all of that: the block already
- * carries its placeholder content as field defaults, so a template calls section_field('crb_x_y')
- * with no default and an emptied field simply hides its element.
- *
- * $post_id lets a template read a field from a page other than the one being
- * rendered - the footer's social icons read from the front page this way, since
- * they mirror what home_social shows rather than carrying their own copy.
+ * Every field belongs to a section block (includes/section-blocks.php), which carries its placeholder
+ * content as field defaults, so a template calls section_field('crb_x_y') with no default and an
+ * emptied field simply hides its element. Inside a block the value is the block's own. A shortcode
+ * typed by hand renders the block's placeholder content. $default is only returned for a field no
+ * block owns, which is the case when Carbon Fields is missing.
  */
-function section_field($name, $default = '', $post_id = 0)
+function section_field($name, $default = '')
 {
-	/*Sections built as blocks read the values of the block they render in, or the block's placeholder content when the shortcode was typed by hand*/
 	$block_values = section_block_fields();
 	if ($block_values === null) {
 		$block_values = section_block_defaults_for($name);
 	}
-	if ($block_values !== null) {
-		$value = array_key_exists($name, $block_values) ? $block_values[$name] : $default;
-		return is_string($value) ? trim($value) : $value;
-	}
-	if (!function_exists('carbon_get_post_meta')) {
+	if ($block_values === null) {
 		return $default;
 	}
-	$post_id = $post_id ?: get_the_ID();
-	$value = carbon_get_post_meta($post_id, $name);
-	if ($value !== '' && $value !== null && $value !== array()) {
-		return $value;
-	}
-	return section_has_content($name, $post_id) ? $value : $default;
+	$value = array_key_exists($name, $block_values) ? $block_values[$name] : $default;
+	return is_string($value) ? trim($value) : $value;
 }
 
 /**
  * SECTIONS BUILT AS BLOCKS
  *
- * A section like home_banner is a Carbon Fields block (includes/section-blocks.php): the client edits
+ * A section with fields is a Carbon Fields block (includes/section-blocks.php): the client edits
  * its fields inside the block, and the block renders by running the section's shortcode. These
- * helpers hand the block's values to the template.
+ * helpers hand the block's values to the template. A section with no block there has no fields yet.
  *
  * section_block_fields() holds the values of the block being rendered right now, or null outside one.
  * Pass values to set them (the previous ones come back, so renders can nest), null to clear.
@@ -638,45 +442,6 @@ function render_form_shortcode($shortcode)
 }
 
 /**
- * Has the client put anything into this field's section yet?
- * Field names are crb_<section>_<name>, so everything sharing the crb_<section>_
- * prefix counts. Carbon Fields stores its meta with a leading underscore.
- */
-function section_has_content($name, $post_id = 0)
-{
-	static $cache = array();
-	$id = $post_id ?: get_the_ID();
-	if (!$id) {
-		return false;
-	}
-	$parts = explode('_', $name);
-	if (count($parts) < 3) {
-		return false;
-	}
-	$prefix = '_' . $parts[0] . '_' . $parts[1] . '_';
-	if (isset($cache[$id . $prefix])) {
-		return $cache[$id . $prefix];
-	}
-	$cache[$id . $prefix] = false;
-	foreach (get_post_meta($id) as $meta_key => $meta_values) {
-		if (strpos($meta_key, $prefix) !== 0) {
-			continue;
-		}
-		if (substr($meta_key, -5) === '_note') {
-			continue;
-		} /*the html notes in the admin are not content*/
-		foreach ($meta_values as $meta_value) {
-			if ($meta_value === '' || $meta_value === null) {
-				continue;
-			}
-			$cache[$id . $prefix] = true;
-			break 2;
-		}
-	}
-	return $cache[$id . $prefix];
-}
-
-/**
  * English and Ukrainian live on two separate pages, linked manually in the
  * admin's Custom Fields box: has_translation on the English page holds the
  * Ukrainian page ID, is_translation on the Ukrainian page holds the English
@@ -761,7 +526,7 @@ function social_label($network)
 }
 
 /**
- * Option list for the network select in includes/fields.php.
+ * Option list for the network select in includes/theme-options.php.
  */
 function social_network_options()
 {
