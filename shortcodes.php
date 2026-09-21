@@ -15,6 +15,13 @@ function home_audience($atts, $content=null){
 }
 add_shortcode('home_audience', 'home_audience');
 
+function home_benefits($atts, $content=null){
+	ob_start();
+	include(locate_template('template-parts/sections/home/home-benefits.php'));
+	return ob_get_clean();
+}
+add_shortcode('home_benefits', 'home_benefits');
+
 
 function home_services($atts, $content=null){
 	ob_start();	

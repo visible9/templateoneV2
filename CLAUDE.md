@@ -28,7 +28,7 @@ template-parts/sections/home/home-banner.php   (markup + <style> + fields)
 | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `style.css`                                                       | Theme header only. **No styles here.**                                                                                                                                                            |
 | `theme-styles.php`                                                | Document level CSS: reset, typography, forms, the **site header**, footer, animations. Printed inline in `wp_head` so WordPress never serves a stale cached copy. Tokens and shared components are in `includes/css/design-system.css`. |
-| `functions.php`                                                   | Theme supports, Carbon Fields boot, `admin_text()`, `section_field()` and the section block helpers, `theme_icon()` and `theme_icon_options()` (the options of an icon picker field), palette, performance filters.                                                                |
+| `functions.php`                                                   | Theme supports, Carbon Fields boot, `admin_text()`, `section_field()` and the section block helpers, `theme_icon()` and `theme_icon_options()` (the options of an icon picker field), `is_rising()` and `trend_icon()` (a chart and its icon that follow whether a number went up), palette, performance filters.                                                                |
 | `includes/css/design-system.css`                                  | **The design tokens and the shared section components** (buttons, pills, glass, icons, content width). Printed inline by `theme-styles.php` and loaded into the block editor canvas, so a block previews with the tokens it ships with. |
 | `includes/theme-options.php`                                      | The **Theme Options** admin page: one Carbon Fields container with tabs Contact Information, Header and Footer.                                                                                  |
 | `includes/admin-translations.php`                                 | The **Ukrainian admin text**, keyed by the English text written in the code. `admin_text()` in `functions.php` reads it when the site language is Ukrainian. |
@@ -36,7 +36,7 @@ template-parts/sections/home/home-banner.php   (markup + <style> + fields)
 | `includes/editor-sections.php`                                    | The **Page Sections** inserter category: title, description and wireframe icon of every section, the single-instance rule, the canvas styles for block previews, and the placeholder block (with the *add the required fields* message) of a section that has no fields yet. |
 | `shortcodes.php`                                                  | Registers one shortcode per section.                                                                                                                                                              |
 | `includes/theme-changes.php`                                      | Global vanilla JS: lazy loading, scroll animations, and the site header (burger menu, solid state on scroll, menu highlight). Hooked to `wp_footer`.                                              |
-| `template-parts/sections/home/*.php`                              | The 15 home sections. `home-banner.php` and `home-audience.php` (Who it's for) are built. The other thirteen are empty stubs waiting for their fields. |
+| `template-parts/sections/home/*.php`                              | The 16 home sections. `home-banner.php`, `home-audience.php` (Who it's for) and `home-benefits.php` (Benefits) are built. The other thirteen are empty stubs waiting for their fields. |
 | `template-parts/pages/<page>/*.php`                               | Sections belonging to one inner page rather than to the home page. `about/section-about-rev.php` is the About page's take on the About section: block `about_rev`, fields `crb_about_rev_*`. |
 | `header.php` / `footer.php`                                       | The **site header** (logo, centered menu, phone icon, floating over the hero) and the footer. Both read Theme Options and the Header / Footer menus, and print every part only when it is filled in. |
 | `index.php`, `archive.php`, `search.php`, `single.php`, `404.php` | Blog fallbacks. `blog-styles.php` and `single-blog-styles.php` hold their CSS.                                                                                                                    |
@@ -49,9 +49,9 @@ template-parts/sections/home/home-banner.php   (markup + <style> + fields)
 
 ## Registered shortcodes
 
-`home_banner`, `home_audience`, `home_services`, `home_about`, `home_team`, `home_cta`, `home_results`, `home_testimonials`, `home_social`, `home_news`, `home_contact`, `home_mission`, `home_pricing`, `home_portfolio`, `home_faq`, `about_rev`
+`home_banner`, `home_audience`, `home_benefits`, `home_services`, `home_about`, `home_team`, `home_cta`, `home_results`, `home_testimonials`, `home_social`, `home_news`, `home_contact`, `home_mission`, `home_pricing`, `home_portfolio`, `home_faq`, `about_rev`
 
-**With fields (a Carbon Fields block in `includes/section-blocks.php`):** `home_banner`, `home_audience`, `about_rev`.
+**With fields (a Carbon Fields block in `includes/section-blocks.php`):** `home_banner`, `home_audience`, `home_benefits`, `about_rev`.
 
 **Without fields yet:** the other thirteen. Their template is an empty stub, and in the editor their block shows *Add the required fields to the theme to display and edit them in the WordPress admin and on the website.* A section stops being one of these the moment a `Block::make()` exists for its tag: the inserter, the block name (`yk4/home-x` becomes `carbon-fields/home-x`) and the single-instance rule follow the block registry, nothing else is switched by hand. A page that already holds the old placeholder block of a section that then gets fields shows it as an unsupported block until it is replaced, though the front end keeps rendering the shortcode.
 
@@ -94,7 +94,7 @@ Hard rules:
 }
 ```
 
-  `:nth-child(1):nth-last-child(n)` matches the first child only when the list is exactly that long, so the rule reads as "when there are n cards". The `:where()` is load bearing: without it `:has()` would push these rules to a higher specificity than the breakpoints below and the responsive columns would silently stop working. All the quantity rules therefore tie on specificity and the last match wins, which is why `3n` is written before `4n` — twelve cards land on four. Browsers without `:has()` simply keep the default column count. Grids of three use only the `2` and `4` rules (four cards read better as 2+2 than 3+1). `home_audience` is the reference for one: its `2` and `4n` rules both set two columns and a closing `3n` rule sets three again, so twelve cards do not land on two.
+  `:nth-child(1):nth-last-child(n)` matches the first child only when the list is exactly that long, so the rule reads as "when there are n cards". The `:where()` is load bearing: without it `:has()` would push these rules to a higher specificity than the breakpoints below and the responsive columns would silently stop working. All the quantity rules therefore tie on specificity and the last match wins, which is why `3n` is written before `4n` — twelve cards land on four. Browsers without `:has()` simply keep the default column count. Grids of three use only the `2` and `4` rules (four cards read better as 2+2 than 3+1). `home_audience` is the reference for one: its `2` and `4n` rules both set two columns and a closing `3n` rule sets three again, so twelve cards do not land on two. A bento of cards in mixed sizes is the exception: `home_benefits` gives a tile a quarter of a row and a featured card half of one, and lets `flex-grow` follow those shares in a wrapping flex row, so a row that comes up short stretches across instead of leaving a hole and no quantity query is needed. Keep a `.5px` off each flex-basis so a full row never wraps on a rounding error.
 
 - **No BEM.** Short readable classes: `.team-member`, `.member-info`.
 - **No localization of the page** — no `__()`, `_e()`, no text domains. Text on the page is hardcoded English. The admin panel is the one exception, see *Admin panel language*.
@@ -120,7 +120,7 @@ add_shortcode('home_example', 'home_example');
 
 ## Writing a block section
 
-A block section is the same section file plus three things: a Carbon Fields `Block`, a row in the inserter list and a render through the shortcode. `home_banner` is the reference, `about_rev` the second one (tabs, a select, stats) and `home_audience` the third (two repeaters, an icon select, a card grid that sizes itself to its cards).
+A block section is the same section file plus three things: a Carbon Fields `Block`, a row in the inserter list and a render through the shortcode. `home_banner` is the reference, `about_rev` the second one (tabs, a select, stats) `home_audience` the third (two repeaters, an icon select, a card grid that sizes itself to its cards) and `home_benefits` the fourth (a bento: two featured cards around a repeater of tiles, a decorative chart whose values count up and whose curve and trend icon turn upward when the end value is higher than the start, a checklist).
 
 1. **Fields** go in `includes/section-blocks.php`, with every label, tab name and help text in `admin_text()`, as `Block::make('home_x', 'Title')` with `->add_tab()` per group of fields (a hero has dozens, so tabs are not optional), `->set_mode('both')` (form by default, Preview toggle in the toolbar) and `->set_render_callback(function ($fields) { echo render_section_block('home_x', $fields); })`. The id is the shortcode tag, which is what makes the block name `carbon-fields/home-x`.
 2. **Placeholder content is the field default.** Every field gets `->set_default_value()` with the design's text: Lorem ipsum for copy, real labels for buttons and navigation, images from `images/`. The block is filled the moment it is inserted, and this is the only place the placeholder copy is written.
@@ -156,7 +156,7 @@ colours    --color-1 ink #0e1607 (text, dark surfaces)   --color-2 accent lime #
            --color-ink-2 / -3 (raised dark surfaces)   --color-muted-dark (muted text on dark)   --color-inverse #fff
 fonts      --heading-font Bricolage Grotesque   --default-font Urbanist   --accent-font = --default-font   (Manrope follows both for Cyrillic)
 type       --xxl display (hero H1) 104   --xl h1 80   --lg h2 68   --md h3 32   --sm h4 22   --stat card numerals 40   --lead 20
-           --card-title card h3 28   --card-text card copy 17   --card-note card foot line 15
+           --card-title card h3 28   --card-title-lg featured card h3 34   --card-text card copy 17   --card-note card foot line 15
            --default 18 (16 on a phone)   --ui 16   --xs 14   --xxs 12
            The display, heading and card steps are fluid clamp()s: the design value at 1440px, their floor on a phone.
 spacing    --space-1..10 (4, 8, 12, 16, 24, 32, 48, 64, 96, 128)   --section-space   --gutter (page margin)   --grid-gap 24px
@@ -171,7 +171,7 @@ Seven colours are editable by the client under Appearance > Customize > Colours:
 
 The accent is light, so it is never a text colour on the page background or `--color-surface`. It is a background (with `--color-on-accent`), or an accent on a dark surface. Text and icons on light backgrounds use `--color-green`. Translucent overlays derive from the ink with `color-mix(in srgb, var(--color-1) 84%, transparent)`, so they follow the palette too; keep that for overlays and shadows, never for text or a background a reader looks at.
 
-Shared components in the same file: `.button` (primary, amber pill) with `.secondary` (outline on light), `.ghost` (glass on dark), `.dark` and `.small`; `.pill` (and its older name `.eyebrow`) with `.dark`; `.glass` with `.dark-glass`; `.icon-btn`; `.ico`; `.lead`; `.content-width`; `.absolute-cover`. Icons come from `theme_icon('arrow-r')`, one inline SVG map in `functions.php` (currentColor, 24x24): size them with the section's own CSS.
+Shared components in the same file (`.dark` is also the global ink-surface class in `theme-styles.php`, so a `pill dark` gets an ink background on the front end only: a section that puts one on another colour sets `background: none` on it, as `home_benefits` does): `.button` (primary, amber pill) with `.secondary` (outline on light), `.ghost` (glass on dark), `.dark` and `.small`; `.pill` (and its older name `.eyebrow`) with `.dark`; `.glass` with `.dark-glass`; `.icon-btn`; `.ico`; `.lead`; `.content-width`; `.absolute-cover`. Icons come from `theme_icon('arrow-r')`, one inline SVG map in `functions.php` (currentColor, 24x24): size them with the section's own CSS. `trend` points down and its twin `trend-up` is kept out of the pickers: `trend_icon($icon, is_rising($from, $to))` swaps it in where the numbers rise, and leaves any other icon alone.
 
 ## Utility classes to reuse
 
@@ -255,6 +255,8 @@ Blocks render at priority 9, **before** that filter, so every image in a block s
 ## JavaScript
 
 Vanilla only, no jQuery. Global behaviour belongs in `includes/theme-changes.php`; anything section-specific goes in a `<script>` inside the section file. Use readable variable names and avoid inventing custom `data-` attributes.
+
+A count-up (the hero cards, the `about_rev` stats, the `home_benefits` chart) follows one pattern: the markup holds the final value, so the Preview (which runs no scripts) and a visitor without JS see the real number; the section's script counts it up once, the first time the element is seen, and keeps whatever surrounds the number (a unit, a sign). A new one should also do nothing under `prefers-reduced-motion`, treat a decimal comma like a point and end on the author's exact text, as `home_benefits` does.
 
 A full screen overlay (the portfolio lightbox is the reference) is written inside the section file but moved to the end of `<body>` by its own script, so no ancestor can clip a `position: fixed` element. Its CSS is therefore keyed off its own top level class rather than the section class, and it reads its content out of the DOM — the tile's `img` and its `.item-title` / `.item-category` — instead of carrying invented `data-` attributes.
 

@@ -250,6 +250,36 @@ function clamp_percent($value)
 }
 
 /**
+ * The first number in a text, or null when there is none: "12.4", "12,4 min" and "$1,200" all have one. A space, or a
+ * comma before exactly three digits, groups thousands ("1 200", "1,200"), any other comma is a decimal point ("0,125").
+ */
+function first_number($text)
+{
+	$text = preg_replace('/(?<=\d)(?<!\b0)[,\s\x{A0}\x{202F}](?=\d{3}(?!\d))/u', '', (string) $text);
+	return preg_match('/-?\d+(?:[.,]\d+)?/', $text, $number) ? (float) str_replace(',', '.', $number[0]) : null;
+}
+
+/**
+ * Is the number in the second text higher than the one in the first? False when either has no number and when the two
+ * are equal, so a chart that cannot tell keeps its default look.
+ */
+function is_rising($from, $to)
+{
+	$from = first_number($from);
+	$to = first_number($to);
+	return $from !== null && $to !== null && $to > $from;
+}
+
+/**
+ * The icon of a card that shows a change. The trend arrow points down by default and turns up when the numbers rise,
+ * and any other icon stays as the client picked it.
+ */
+function trend_icon($icon, $rising)
+{
+	return ($icon === 'trend' && $rising) ? 'trend-up' : $icon;
+}
+
+/**
  * The rows of a repeater that have every one of the given subfields filled in. A row missing one of
  * them is dropped, so a label without a link or a link without a label never reaches the page.
  * Wrap the printing in if(filled_rows(...)) too, so an all-empty repeater prints no wrapper either.
@@ -332,6 +362,7 @@ function theme_icons()
 		'mail' => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/>',
 		'target' => '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
 		'trend' => '<path d="M23 18l-9.5-9.5-5 5L1 6M17 18h6v-6"/>',
+		'trend-up' => '<path d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6"/>',
 		'chat' => '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
 		'insta' => '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6"/>',
 		'yt' => '<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z"/>',
@@ -352,7 +383,8 @@ function theme_icon($name)
 
 /**
  * The icons a client can pick for a card, as the options of a select field: every icon of theme_icons() except the
- * interface glyphs and the brand marks, so an icon added to the map shows up in the picker with no other change.
+ * interface glyphs, the brand marks and trend-up (the rising twin of trend, which trend_icon() swaps in), so an icon
+ * added to the map shows up in the picker with no other change.
  * The label is the icon's name run through admin_text(), so give it a Ukrainian in includes/admin-translations.php.
  * The empty option is how the client hides the icon.
  */
@@ -360,7 +392,7 @@ function theme_icon_options()
 {
 	$options = array('' => admin_text('No icon'));
 	foreach (array_keys(theme_icons()) as $name) {
-		if (in_array($name, array('arrow-ur', 'arrow-r', 'plus', 'minus', 'menu', 'close', 'insta', 'yt'), true)) {
+		if (in_array($name, array('arrow-ur', 'arrow-r', 'plus', 'minus', 'menu', 'close', 'insta', 'yt', 'trend-up'), true)) {
 			continue;
 		}
 		$options[$name] = admin_text(ucfirst($name));

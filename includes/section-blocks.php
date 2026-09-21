@@ -190,6 +190,103 @@ Block::make('home_audience', admin_text('Who it\'s for'))
 		echo render_section_block('home_audience', $fields);
 	});
 
+/*03 Benefits. A dark section: a heading with an intro above a bento grid. Two featured cards (a chart, a checklist) frame a set of tiles, and the tiles are a repeater so the count is the client's.*/
+Block::make('home_benefits', admin_text('Benefits'))
+	->set_description(admin_text('A heading above a bento grid of benefit cards, with a chart card and a checklist card.'))
+	->set_category('yk4-sections', admin_text('Page Sections'))
+	->set_icon('layout')
+	->set_keywords(explode(',', admin_text('benefits,bento,cards')))
+	->set_mode('both')
+	->add_tab(admin_text('Heading'), array(
+		Field::make('text', 'crb_benefits_eyebrow', admin_text('Label'))
+			->set_default_value('Benefits')
+			->set_help_text(admin_text('The small pill above the heading. Leave empty to hide it.')),
+		Field::make('text', 'crb_benefits_title', admin_text('Heading'))
+			->set_default_value('Lorem ipsum dolor sit amet.'),
+		Field::make('textarea', 'crb_benefits_text', admin_text('Description'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'),
+	))
+	->add_tab(admin_text('Chart Card'), array(
+		Field::make('select', 'crb_benefits_chart_icon', admin_text('Icon'))
+			->add_options(theme_icon_options())
+			->set_default_value('trend')
+			->set_help_text(admin_text('The Trend icon points up when the End Value is higher than the Start Value, and down otherwise. Any other icon stays as chosen.')),
+		Field::make('text', 'crb_benefits_chart_title', admin_text('Title'))
+			->set_default_value('Lorem ipsum dolor sit amet')
+			->set_help_text(admin_text('The green card with a chart. Leave the title empty to hide the card.')),
+		Field::make('textarea', 'crb_benefits_chart_text', admin_text('Description'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'),
+		Field::make('text', 'crb_benefits_chart_start_label', admin_text('Start Label'))
+			->set_default_value('Week 1')
+			->set_width(50),
+		Field::make('text', 'crb_benefits_chart_start_value', admin_text('Start Value'))
+			->set_default_value('18.6')
+			->set_width(50)
+			->set_help_text(admin_text('The number counts up when the card scrolls into view. Text around it, such as a unit, stays as written.')),
+		Field::make('text', 'crb_benefits_chart_end_label', admin_text('End Label'))
+			->set_default_value('Week 8')
+			->set_width(50),
+		Field::make('text', 'crb_benefits_chart_end_value', admin_text('End Value'))
+			->set_default_value('12.4')
+			->set_width(50)
+			->set_help_text(admin_text('The curve is decorative: it falls, and climbs instead when this is higher than the Start Value. Leave both values empty to hide the chart. On a phone the two values share one line and the labels are not shown.')),
+	))
+	->add_tab(admin_text('Cards'), array(
+		Field::make('complex', 'crb_benefits_tiles', admin_text('Cards'))
+			->set_collapsed(true)
+			->setup_labels(array('plural_name' => admin_text('Cards'), 'singular_name' => admin_text('Card')))
+			->add_fields(array(
+				Field::make('select', 'icon', admin_text('Icon'))
+					->add_options(theme_icon_options())
+					->set_default_value('calendar'),
+				Field::make('text', 'title', admin_text('Title'))
+					->set_help_text(admin_text('A card without a title is not shown.')),
+				Field::make('textarea', 'text', admin_text('Description'))
+					->set_rows(3),
+			))
+			->set_header_template('<%- title %>')
+			->set_default_value(array(
+				array('_id' => 'tile-1', 'icon' => 'calendar', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'),
+				array('_id' => 'tile-2', 'icon' => 'clock', 'title' => 'Lorem ipsum dolor sit amet, consectetur', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.'),
+				array('_id' => 'tile-3', 'icon' => 'video', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.'),
+				array('_id' => 'tile-4', 'icon' => 'users', 'title' => 'Lorem ipsum dolor sit amet', 'text' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.'),
+			))
+			->set_help_text(admin_text('The dark cards between the two featured ones. A row that comes up short stretches to fill the width, so any number works.')),
+	))
+	->add_tab(admin_text('Checklist Card'), array(
+		Field::make('select', 'crb_benefits_check_icon', admin_text('Icon'))
+			->add_options(theme_icon_options())
+			->set_default_value('shield'),
+		Field::make('text', 'crb_benefits_check_title', admin_text('Title'))
+			->set_default_value('Lorem ipsum dolor sit amet')
+			->set_help_text(admin_text('The lime card with a checklist. Leave the title empty to hide the card.')),
+		Field::make('textarea', 'crb_benefits_check_text', admin_text('Description'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit.'),
+		Field::make('complex', 'crb_benefits_check_rows', admin_text('Lines'))
+			->set_collapsed(true)
+			->setup_labels(array('plural_name' => admin_text('Lines'), 'singular_name' => admin_text('Line')))
+			->add_fields(array(
+				Field::make('select', 'icon', admin_text('Icon'))
+					->add_options(theme_icon_options())
+					->set_default_value('check'),
+				Field::make('text', 'title', admin_text('Title'))
+					->set_help_text(admin_text('A line without a title is not shown.')),
+				Field::make('text', 'text', admin_text('Description')),
+			))
+			->set_header_template('<%- title %>')
+			->set_default_value(array(
+				array('_id' => 'line-1', 'icon' => 'check', 'title' => 'Lorem ipsum dolor', 'text' => 'Lorem ipsum dolor sit amet'),
+				array('_id' => 'line-2', 'icon' => 'calendar', 'title' => 'Lorem ipsum dolor sit', 'text' => 'Lorem ipsum dolor sit amet'),
+			))
+			->set_help_text(admin_text('The white chips beside the text. The first one is highlighted, and on a phone only the first is shown. Leave the list empty to hide them.')),
+	))
+	->set_render_callback(function ($fields) {
+		echo render_section_block('home_benefits', $fields);
+	});
+
 /*About (About Page). The About page's own take on the About section: the image sits on the right by default.*/
 Block::make('about_rev', admin_text('About (About Page)'))
 	->set_description(admin_text('The About page\'s own version of the About section.'))

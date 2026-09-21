@@ -73,6 +73,8 @@
 	/*numerals inside cards*/
 	--card-title: clamp(24px, 1.944vw, 28px);
 	/*the h3 of a card in a grid*/
+	--card-title-lg: clamp(28px, 2.361vw, 34px);
+	/*the h3 of a featured card, one that spans two tiles*/
 	--card-text: clamp(16px, 1.181vw, 17px);
 	/*copy inside a card*/
 	--card-note: clamp(14px, 1.042vw, 15px);
