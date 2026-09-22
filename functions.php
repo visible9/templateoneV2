@@ -280,6 +280,33 @@ function trend_icon($icon, $rising)
 }
 
 /**
+ * The curve behind the two figures of a case study card, on a 300 x 100 drawing that starts high on the left and falls to
+ * the right. The design draws five slightly different ones and repeats them in turn, so card $index takes the next.
+ * A card whose figures rise mirrors the drawing in CSS, so the curve climbs instead.
+ */
+function story_curve($index)
+{
+	$curves = array(
+		'M0 14C40 16 60 30 100 34S170 52 210 66S270 82 300 84',
+		'M0 20C50 22 70 24 110 40S180 44 220 62S270 70 300 80',
+		'M0 12C30 14 60 22 90 30S150 40 190 56S260 74 300 82',
+		'M0 18C40 20 70 34 110 38S170 50 210 60S270 76 300 88',
+		'M0 10C30 12 60 20 100 34S160 44 200 58S260 72 300 78',
+	);
+	return $curves[(int) $index % count($curves)];
+}
+
+/**
+ * The lines of a text, trimmed and without the blank ones, for a textarea that holds a list with one item per line.
+ * The line breaks are spelled out because \R without the u flag would also split on the byte 0x85, which is half
+ * of a Cyrillic letter.
+ */
+function text_lines($text)
+{
+	return array_values(array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) $text)), 'strlen'));
+}
+
+/**
  * The rows of a repeater that have every one of the given subfields filled in. A row missing one of
  * them is dropped, so a label without a link or a link without a label never reaches the page.
  * Wrap the printing in if(filled_rows(...)) too, so an all-empty repeater prints no wrapper either.

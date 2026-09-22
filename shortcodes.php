@@ -22,6 +22,20 @@ function home_benefits($atts, $content=null){
 }
 add_shortcode('home_benefits', 'home_benefits');
 
+function home_program($atts, $content=null){
+	ob_start();
+	include(locate_template('template-parts/sections/home/home-program.php'));
+	return ob_get_clean();
+}
+add_shortcode('home_program', 'home_program');
+
+function home_proof($atts, $content=null){
+	ob_start();
+	include(locate_template('template-parts/sections/home/home-proof.php'));
+	return ob_get_clean();
+}
+add_shortcode('home_proof', 'home_proof');
+
 
 function home_services($atts, $content=null){
 	ob_start();	

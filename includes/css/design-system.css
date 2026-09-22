@@ -65,20 +65,42 @@
 	/*h1, big closing headlines and numerals*/
 	--lg: clamp(40px, 4.722vw, 68px);
 	/*h2, section titles*/
+	--lg-narrow: clamp(40px, 4.167vw, 60px);
+	/*h2 of a section whose heading sits in a narrow column beside its content*/
+	--md-lg: clamp(36px, 3.333vw, 48px);
+	/*h3 of a wide row, such as the heading above a slider*/
 	--md: clamp(24px, 2.222vw, 32px);
 	/*h3, card titles*/
 	--sm: clamp(20px, 1.528vw, 22px);
 	/*h4, questions, lead-ins*/
 	--stat: clamp(32px, 2.778vw, 40px);
 	/*numerals inside cards*/
+	--numeral: clamp(44px, 3.889vw, 56px);
+	/*the big ordinal beside a step card*/
+	--figure: clamp(52px, 5.833vw, 84px);
+	/*the big figures of a results row*/
+	--stat-lg: clamp(36px, 3.056vw, 44px);
+	/*the before and after numerals of a case study card*/
+	--quote: clamp(24px, 2.014vw, 29px);
+	/*the text of a pull quote card*/
+	--quote-mark: clamp(96px, 8.333vw, 120px);
+	/*the opening quote mark above it*/
 	--card-title: clamp(24px, 1.944vw, 28px);
 	/*the h3 of a card in a grid*/
 	--card-title-lg: clamp(28px, 2.361vw, 34px);
 	/*the h3 of a featured card, one that spans two tiles*/
 	--card-text: clamp(16px, 1.181vw, 17px);
 	/*copy inside a card*/
+	--card-text-lg: clamp(17px, 1.319vw, 19px);
+	/*copy inside a card that leads with it, such as a review*/
 	--card-note: clamp(14px, 1.042vw, 15px);
 	/*the small bold line at the foot of a card*/
+	--plan-title: clamp(28px, 2.222vw, 32px);
+	/*the h3 of a pricing plan*/
+	--price: clamp(60px, 5vw, 72px);
+	/*the price of a pricing plan*/
+	--question: clamp(19px, 1.528vw, 22px);
+	/*the question of an FAQ row*/
 	--lead: clamp(18px, 1.389vw, 20px);
 	/*intro paragraphs*/
 	--default: 18px;
