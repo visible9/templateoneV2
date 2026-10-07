@@ -42,6 +42,32 @@
 </script>
 
 <script>
+	/*The round back to top button (markup in footer.php): it shows once the page has scrolled a little, and steps aside while the footer's own Back to top link is on screen, so the two never sit on top of each other.*/
+	(function() {
+		let button = document.querySelector(".scroll-top");
+		if (!button) {
+			return;
+		}
+		let footerLink = document.querySelector(".site-footer .to-top");
+		let footerLinkShown = false;
+
+		function update() {
+			button.classList.toggle("is-visible", window.scrollY > 300 && !footerLinkShown);
+		}
+
+		if (footerLink && "IntersectionObserver" in window) {
+			new IntersectionObserver(function(entries) {
+				footerLinkShown = entries[0].isIntersecting;
+				update();
+			}).observe(footerLink);
+		}
+
+		window.addEventListener("scroll", update, {passive: true});
+		update();
+	})();
+</script>
+
+<script>
 	/*The site header (markup in header.php): the burger menu, the solid state once the page scrolls, and the menu link of the section being read.*/
 	(function() {
 		let header = document.querySelector(".site-header");

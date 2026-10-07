@@ -593,55 +593,6 @@
 		}
 	}
 
-	/*The footer brand reuses the logo from Theme Options*/
-	.logo-container {
-		display: inline-flex;
-		align-items: center;
-		gap: 10px;
-		color: var(--color-1);
-		text-decoration: none;
-	}
-
-	.logo-container img {
-		display: block;
-		width: 40px;
-		height: 40px;
-		border-radius: 22%;
-		object-fit: cover;
-	}
-
-	.logo-text {
-		font-family: var(--heading-font);
-		font-size: var(--sm);
-		font-weight: 600;
-		letter-spacing: -.04em;
-	}
-
-	/*Social*/
-	.social-link {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 44px;
-		height: 44px;
-		border-radius: 500px;
-		border: 1px solid var(--color-border);
-		color: var(--color-3);
-		transition: background var(--transition), border-color var(--transition), color var(--transition);
-	}
-
-	.social-link:hover {
-		background: var(--color-2);
-		border-color: var(--color-2);
-		color: var(--color-on-accent);
-	}
-
-	.social-link svg {
-		width: 18px;
-		height: 18px;
-	}
-
-
 	/*Page Banner (blog, archive, search, 404)*/
 	.page-banner {
 		padding: 90px 0 70px;
@@ -654,202 +605,524 @@
 	}
 
 
-	/*Footer*/
+	/*Footer - dark, as in the design: the brand (logo, description, social links) beside up to three columns and a newsletter form, a strip of legal details and a bottom line. Markup: footer.php, every part optional.
+	The columns share eight of the twelve grid tracks, two for the menu and three for each of the others, and stretch across what a missing one leaves. A tablet lays them out in an auto-fitting grid, a phone in two.*/
 	.site-footer {
-		background: var(--color-bg);
-		color: var(--color-3);
-		font-size: var(--xs);
-		padding: 80px 0 30px;
-		border-top: 1px solid var(--color-border);
+		--footer-line: rgb(255 255 255 / 14%);
+		--footer-faint: color-mix(in srgb, var(--color-muted-dark) 77%, var(--color-1));
+		position: relative;
+		z-index: 2;
+		padding: 104px 0 56px;
+		background: var(--color-1);
+		color: var(--color-inverse);
+		font-size: var(--ui);
 	}
 
 	.site-footer a {
-		color: var(--color-3);
+		color: var(--color-muted-dark);
 		text-decoration: none;
+		transition: color var(--transition);
 	}
 
 	.site-footer a:hover {
-		color: var(--color-1);
+		color: var(--color-inverse);
 	}
 
 	.footer-top {
-		display: flex;
-		justify-content: space-between;
-		flex-wrap: wrap;
-		gap: 48px;
-		padding-bottom: 45px;
-		border-bottom: 1px solid var(--color-border);
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		column-gap: var(--grid-gap);
+		row-gap: var(--space-7);
 	}
 
+	.footer-top>:only-child {
+		grid-column: 1 / -1;
+	}
+
+	/*The brand: the logo from Theme Options (Header tab), the description and the social links*/
 	.footer-brand {
-		max-width: 320px;
+		grid-column: span 4;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--space-5);
+		padding-right: var(--space-6);
 	}
 
-	.footer-brand .logo-text {
-		color: var(--color-1);
-		font-size: var(--md);
+	.site-footer .logo-container {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		color: var(--color-inverse);
+	}
+
+	.logo-container img {
+		display: block;
+		flex: none;
+		width: 44px;
+		height: 44px;
+		border-radius: 22%;
+		object-fit: cover;
+	}
+
+	.logo-text {
+		font-family: var(--heading-font);
+		font-size: var(--brand);
+		font-weight: 600;
+		letter-spacing: -.04em;
 	}
 
 	.footer-brand p {
-		margin: 18px 0 0;
-		line-height: 1.75;
+		margin: 0;
+		font-size: var(--card-text);
+		color: var(--color-muted-dark);
+		overflow-wrap: anywhere;
 	}
 
-	.footer-cols {
+	.footer-social {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 48px;
+		align-items: center;
+		gap: 10px;
+	}
+
+	.site-footer .social-link {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 44px;
+		height: 44px;
+		border-radius: var(--radius-pill);
+		background: rgb(255 255 255 / 8%);
+		color: var(--color-inverse);
+		transition: transform var(--transition);
+	}
+
+	.site-footer .social-link:hover {
+		transform: translateY(-1px);
+	}
+
+	.social-link svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	/*The columns. A base of "tracks" is the width of that many of the eight tracks plus the gaps between them, less half a pixel so a full row never wraps on a rounding error.*/
+	.footer-cols {
+		grid-column: span 8;
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-7) var(--grid-gap);
 	}
 
 	.footer-col {
-		min-width: 160px;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 calc((100% - 7 * var(--grid-gap)) * 3 / 8 + 2 * var(--grid-gap) - .5px);
+		gap: var(--space-4);
+		min-width: 0;
+	}
+
+	.footer-col.footer-menu-col {
+		flex-basis: calc((100% - 7 * var(--grid-gap)) / 4 + var(--grid-gap) - .5px);
+	}
+
+	.footer-col.footer-form-col {
+		flex-basis: 100%;
 	}
 
 	.footer-col-title {
-		display: block;
-		margin: 0 0 16px;
-		font-family: var(--accent-font);
 		font-size: var(--xs);
-		font-weight: 500;
-		letter-spacing: .1em;
+		font-weight: 700;
+		letter-spacing: .08em;
 		text-transform: uppercase;
-		color: var(--color-3);
+		color: var(--color-2);
 	}
 
-	.footer-menu {
+	.footer-menu,
+	.footer-contacts {
 		display: grid;
-		gap: 11px;
+		gap: var(--space-4);
 		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 
-	.footer-contacts {
-		display: grid;
-		gap: 11px;
-	}
-
-	.footer-col a,
-	.footer-col span {
-		display: block;
-	}
-
-	.footer-col a:hover {
-		text-decoration: underline;
-		text-decoration-color: var(--color-2);
-		text-decoration-thickness: 2px;
-		text-underline-offset: 3px;
-	}
-
-	.footer-cta {
-		display: inline-block;
-		margin-top: 22px;
-		font-size: var(--default);
-		font-weight: 600;
-		color: var(--color-1);
-		text-decoration: underline;
-		text-decoration-thickness: 1px;
-		text-underline-offset: 5px;
-	}
-
-	.footer-cta:hover {
-		color: var(--color-1);
-		text-decoration-color: var(--color-2);
-	}
-
-	.footer-form {
-		max-width: 340px;
-	}
-
-	.footer-form input[type="text"],
-	.footer-form input[type="email"],
-	.footer-form input[type="tel"],
-	.footer-form input[type="url"],
-	.footer-form input[type="number"],
-	.footer-form textarea,
-	.footer-form select {
-		height: 44px;
-	}
-
-	.footer-social {
-		display: flex;
-		gap: 10px;
-	}
-
-	.footer-bottom {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 16px;
-		padding-top: 28px;
-	}
-
-	.footer-bottom p {
+	.footer-menu li {
 		margin: 0;
+		list-style: none;
 	}
 
+	.footer-menu a {
+		display: block;
+		overflow-wrap: anywhere;
+	}
+
+	/*A contact line is an icon and its text. The address keeps the line breaks it was typed with (pre-line, not a <br>, which a flex row would take for an item of its own).*/
+	.footer-contacts a,
+	.footer-contacts span {
+		display: flex;
+		align-items: flex-start;
+		gap: 10px;
+		overflow-wrap: anywhere;
+		white-space: pre-line;
+	}
+
+	.footer-contacts span {
+		color: var(--color-muted-dark);
+	}
+
+	.footer-contacts .ico {
+		width: 18px;
+		height: 18px;
+		margin-top: calc((1lh - 18px) / 2);
+	}
+
+	/*The newsletter form is a pasted shortcode, so it sits on a white card: a plugin's own colours for descriptions, errors and success messages are made for a light surface and stay legible there. Its stylesheet also out-ranks the global element rules, so the labels, fields and button are restyled here, by element and under the wrapper (prefixed with .site-footer, the one class its own label and button rules are out-ranked by). The same job home_contact does on its card, see Forms in CLAUDE.md.*/
+	.site-footer .footer-form {
+		max-width: 380px;
+		padding: var(--space-5);
+		border-radius: var(--radius-lg);
+		background: var(--color-card);
+		color: var(--color-1);
+	}
+
+	/*the plugin leaves a margin under every field, the one holding the button included, which would add to the card's own padding*/
+	.site-footer .footer-form div:has(button[type="submit"], input[type="submit"]) {
+		margin-bottom: 0;
+	}
+
+	.site-footer .footer-form a {
+		color: var(--color-green-deep);
+		text-decoration: underline;
+	}
+
+	.site-footer .footer-form a:hover {
+		color: var(--color-green);
+	}
+
+	.site-footer .footer-form>* {
+		--submit-bg-color: var(--color-cta);
+		--submit-border-color: var(--color-cta);
+		--submit-text-color: var(--color-on-cta);
+		--submit-hover-bg-color: var(--color-cta-hover);
+		--submit-hover-border-color: var(--color-cta-hover);
+		--submit-hover-color: var(--color-on-cta);
+		--submit-active-bg-color: var(--color-cta);
+		--submit-active-border-color: var(--color-cta);
+		--submit-active-color: var(--color-on-cta);
+	}
+
+	.site-footer .footer-form fieldset {
+		min-width: 0;
+		margin: 0;
+		padding: 0;
+		border: 0;
+	}
+
+	.site-footer .footer-form legend {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.site-footer .footer-form label {
+		display: block;
+		margin: 0 0 var(--space-2);
+		padding: 0;
+		font-size: var(--xs);
+		font-weight: 700;
+		line-height: 1.55;
+		color: var(--color-1);
+	}
+
+	.site-footer .footer-form input[type="text"],
+	.site-footer .footer-form input[type="email"],
+	.site-footer .footer-form input[type="tel"],
+	.site-footer .footer-form input[type="url"],
+	.site-footer .footer-form input[type="search"],
+	.site-footer .footer-form input[type="number"],
+	.site-footer .footer-form select {
+		display: block;
+		width: 100%;
+		height: 44px;
+		min-height: 0;
+		margin: 0;
+		padding: 0 var(--space-4);
+		border: 0;
+		border-radius: var(--radius-md);
+		background: var(--color-card);
+		box-shadow: inset 0 0 0 1px var(--color-border);
+		font-size: var(--ui);
+		line-height: normal;
+		color: var(--color-1);
+	}
+
+	.site-footer .footer-form textarea {
+		display: block;
+		width: 100%;
+		height: auto;
+		min-height: 110px;
+		margin: 0;
+		padding: var(--space-3) var(--space-4);
+		border: 0;
+		border-radius: var(--radius-md);
+		background: var(--color-card);
+		box-shadow: inset 0 0 0 1px var(--color-border);
+		font-size: var(--ui);
+		line-height: 1.55;
+		color: var(--color-1);
+	}
+
+	/*the focus ring is the one !important: the plugin draws its own glow with a selector nothing short of it beats*/
+	.site-footer .footer-form input:focus,
+	.site-footer .footer-form textarea:focus,
+	.site-footer .footer-form select:focus {
+		box-shadow: inset 0 0 0 2px var(--color-green) !important;
+		outline: none;
+	}
+
+	.site-footer .footer-form button[type="submit"],
+	.site-footer .footer-form input[type="submit"] {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: auto;
+		max-width: 100%;
+		height: auto;
+		min-height: 48px;
+		margin: 0;
+		padding: var(--space-3) var(--space-5);
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: var(--color-cta);
+		box-shadow: none;
+		color: var(--color-on-cta);
+		font-size: var(--ui);
+		font-weight: 700;
+		line-height: 1.2;
+		text-align: center;
+		text-shadow: none;
+		white-space: normal;
+	}
+
+	.site-footer .footer-form button[type="submit"]:hover,
+	.site-footer .footer-form input[type="submit"]:hover {
+		background: var(--color-cta-hover);
+		color: var(--color-on-cta);
+		transform: translateY(-1px);
+	}
+
+	/*The strip of legal details*/
 	.footer-legal-info {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 20px 32px;
+		gap: 18px var(--grid-gap);
 		padding: 28px 0;
-		border-bottom: 1px solid var(--color-border);
+		border-top: 1px solid var(--footer-line);
+		border-bottom: 1px solid var(--footer-line);
 	}
 
-	.footer-legal-info:last-child {
-		border-bottom: 0;
+	.footer-top+.footer-legal-info {
+		margin-top: 72px;
 	}
 
 	.legal-item {
 		display: flex;
 		flex-direction: column;
-		gap: 4px;
-		font-size: var(--xs);
+		gap: 6px;
+		font-size: var(--card-note);
 		line-height: 1.45;
+		color: var(--color-muted-dark);
+		overflow-wrap: anywhere;
 	}
 
 	.legal-label {
 		font-size: var(--xxs);
+		line-height: 1.55;
 		font-weight: 700;
 		letter-spacing: .06em;
 		text-transform: uppercase;
-		color: var(--ink-faint);
+		color: var(--footer-faint);
+	}
+
+	/*The bottom line. Without a strip of legal details above it, it draws the hairline itself.*/
+	.footer-bottom {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-5);
+		padding-top: var(--space-5);
+		font-size: var(--card-note);
+		color: var(--color-muted-dark);
+	}
+
+	.footer-top+.footer-bottom {
+		margin-top: 72px;
+		padding-top: 28px;
+		border-top: 1px solid var(--footer-line);
+	}
+
+	.footer-bottom p {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+
+	.to-top {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin-left: auto;
+	}
+
+	.to-top .ico {
+		width: 16px;
+		height: 16px;
 	}
 
 	@media(max-width: 1000px) {
 		.footer-top {
-			gap: 36px;
+			grid-template-columns: minmax(0, 1fr);
+		}
+
+		.footer-brand {
+			grid-column: auto;
+			padding-right: 0;
 		}
 
 		.footer-cols {
-			gap: 36px;
-			width: 100%;
+			grid-column: auto;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 36px var(--grid-gap);
 		}
 
-		.footer-col {
-			flex: 1 1 160px;
+		.footer-col.footer-form-col {
+			grid-column: 1 / -1;
 		}
 	}
 
 	@media(max-width: 750px) {
 		.site-footer {
-			padding: 55px 0 26px;
+			padding: 64px 0 40px;
 		}
 
 		.footer-top {
-			flex-direction: column;
-			gap: 32px;
+			row-gap: 44px;
+		}
+
+		.footer-brand {
+			gap: 20px;
+		}
+
+		.site-footer .logo-container {
+			gap: 10px;
+		}
+
+		.logo-container img {
+			width: 40px;
+			height: 40px;
 		}
 
 		.footer-cols {
-			flex-direction: column;
-			gap: 28px;
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			column-gap: var(--space-4);
+		}
+
+		.footer-col {
+			gap: 14px;
+		}
+
+		.footer-menu,
+		.footer-contacts {
+			gap: 14px;
+		}
+
+		.footer-col.footer-contacts-col,
+		.footer-col.footer-form-col {
+			grid-column: 1 / -1;
+			order: 1;
+		}
+
+		.footer-col.footer-form-col {
+			order: 2;
+		}
+
+		.footer-top+.footer-legal-info {
+			margin-top: 40px;
+		}
+
+		.footer-legal-info {
+			padding: var(--space-5) 0;
+		}
+
+		.legal-item {
+			gap: var(--space-1);
 		}
 
 		.footer-bottom {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 8px;
+			gap: 12px;
+			padding-top: 20px;
+		}
+
+		.footer-top+.footer-bottom {
+			margin-top: 40px;
+			padding-top: 20px;
+		}
+
+		.to-top,
+		.footer-bottom:not(:has(.footer-copyright)) {
+			display: none;
+		}
+	}
+
+
+	/*Back to top - a round amber button fixed to the bottom right corner, on every page. It is invisible (and out of the tab order) until includes/theme-changes.php adds .is-visible once the page has scrolled.
+	Markup: footer.php. The .icon-btn base gives the size, the pill radius and the 1px lift. Amber reads on the light sections and on the dark footer alike.*/
+	.scroll-top {
+		position: fixed;
+		right: var(--gutter);
+		bottom: var(--space-5);
+		z-index: var(--z-header);
+		background: var(--color-cta);
+		color: var(--color-on-cta);
+		box-shadow: var(--shadow);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(var(--space-3));
+		transition: opacity .3s ease, transform .3s ease, background var(--transition), visibility 0s linear .3s;
+	}
+
+	.scroll-top.is-visible {
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		transition-delay: 0s;
+	}
+
+	.scroll-top.is-visible:hover {
+		background: var(--color-cta-hover);
+		transform: translateY(-2px);
+	}
+
+	.scroll-top .ico {
+		width: 20px;
+		height: 20px;
+	}
+
+	@media(prefers-reduced-motion: reduce) {
+		.scroll-top {
+			transform: none;
+			transition: none;
+		}
+
+		.scroll-top.is-visible:hover {
+			transform: none;
 		}
 	}
 

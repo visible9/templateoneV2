@@ -95,6 +95,8 @@
 	/*copy inside a card that leads with it, such as a review*/
 	--card-note: clamp(14px, 1.042vw, 15px);
 	/*the small bold line at the foot of a card*/
+	--brand: clamp(28px, 2.083vw, 30px);
+	/*the logo text in the footer*/
 	--plan-title: clamp(28px, 2.222vw, 32px);
 	/*the h3 of a pricing plan*/
 	--price: clamp(60px, 5vw, 72px);
@@ -138,6 +140,8 @@
 
 	/*radii*/
 	--radius-pill: 999px;
+	--radius-2xl: 36px;
+	/*the large form panel*/
 	--radius-xl: 28px;
 	--radius-lg: 24px;
 	--radius-md: 18px;

@@ -744,6 +744,53 @@ Block::make('home_faq', admin_text('FAQ'))
 		echo render_section_block('home_faq', $fields);
 	});
 
+/*08 Lead capture, built into the Contact stub (its id is the design's #contact anchor). A centred heading over a form card on a photo. The form itself is a shortcode of the client's form plugin: the theme ships no form, and section_form() prints nothing when the shortcode is not one that expands.*/
+Block::make('home_contact', admin_text('Contact'))
+	->set_description(admin_text('A centred heading and a form card on a photo, with a line of small print and a note under the form.'))
+	->set_category('yk4-sections', admin_text('Page Sections'))
+	->set_icon('layout')
+	->set_keywords(explode(',', admin_text('contact,form,lead')))
+	->set_mode('both')
+	->add_tab(admin_text('Heading'), array(
+		Field::make('text', 'crb_contact_eyebrow', admin_text('Label'))
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur')
+			->set_help_text(admin_text('The small pill above the heading. Leave empty to hide it.')),
+		Field::make('select', 'crb_contact_eyebrow_icon', admin_text('Label Icon'))
+			->add_options(theme_icon_options())
+			->set_default_value('clock')
+			->set_help_text(admin_text('The icon before the label. Choose No icon to show the text alone.')),
+		Field::make('text', 'crb_contact_title', admin_text('Heading'))
+			->set_default_value('Lorem ipsum dolor sit amet.'),
+		Field::make('textarea', 'crb_contact_text', admin_text('Description'))
+			->set_rows(3)
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.'),
+	))
+	->add_tab(admin_text('Form'), array(
+		Field::make('text', 'crb_contact_form', admin_text('Form Shortcode'))
+			->set_default_value('[formidable key="contact-form"]')
+			->set_help_text(admin_text('Paste the shortcode of your form, for example [formidable key="contact-form"]. Leave empty and no form is shown. The fields, their labels and the button text are edited in the form plugin.')),
+		Field::make('textarea', 'crb_contact_consent', admin_text('Small Print'))
+			->set_rows(2)
+			->set_default_value('By submitting, you agree to the <a href="#">Privacy Policy</a> and <a href="#">User Agreement</a>.')
+			->set_help_text(admin_text('The line under the form. Write a link as &lt;a href="https://example.com"&gt;the words&lt;/a&gt;. Leave empty to hide it.')),
+		Field::make('text', 'crb_contact_note', admin_text('Note'))
+			->set_default_value('Lorem ipsum dolor sit amet, consectetur adipiscing')
+			->set_help_text(admin_text('A short line beside the small print, such as what the visitor gets. Leave empty to hide it.')),
+		Field::make('select', 'crb_contact_note_icon', admin_text('Note Icon'))
+			->add_options(theme_icon_options())
+			->set_default_value('download')
+			->set_help_text(admin_text('The icon before the note. Choose No icon to show the text alone.')),
+	))
+	->add_tab(admin_text('Photo'), array(
+		Field::make('image', 'crb_contact_image', admin_text('Image'))
+			->set_value_type('url')
+			->set_default_value($placeholder_bg)
+			->set_help_text(admin_text('The photo behind the section, fading into the page colour at the top. Leave empty for a plain background.')),
+	))
+	->set_render_callback(function ($fields) {
+		echo render_section_block('home_contact', $fields);
+	});
+
 /*About (About Page). The About page's own take on the About section: the image sits on the right by default.*/
 Block::make('about_rev', admin_text('About (About Page)'))
 	->set_description(admin_text('The About page\'s own version of the About section.'))

@@ -371,6 +371,7 @@ function theme_icons()
 	return array(
 		'arrow-ur' => '<path d="M7 17L17 7M8 7h9v9"/>',
 		'arrow-r' => '<path d="M5 12h14M13 6l6 6-6 6"/>',
+		'arrow-up' => '<path d="M12 19V5M6 11l6-6 6 6"/>',
 		'check' => '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
 		'plus' => '<path d="M12 5v14M5 12h14"/>',
 		'minus' => '<path d="M5 12h14"/>',
@@ -419,7 +420,7 @@ function theme_icon_options()
 {
 	$options = array('' => admin_text('No icon'));
 	foreach (array_keys(theme_icons()) as $name) {
-		if (in_array($name, array('arrow-ur', 'arrow-r', 'plus', 'minus', 'menu', 'close', 'insta', 'yt', 'trend-up'), true)) {
+		if (in_array($name, array('arrow-ur', 'arrow-r', 'arrow-up', 'plus', 'minus', 'menu', 'close', 'insta', 'yt', 'trend-up'), true)) {
 			continue;
 		}
 		$options[$name] = admin_text(ucfirst($name));

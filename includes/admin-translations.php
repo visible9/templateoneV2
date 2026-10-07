@@ -262,6 +262,21 @@ return array(
 	'Secondary Button Icon' => 'Іконка додаткової кнопки',
 	'The icon before the text of the secondary button. Choose No icon to show the text alone.' => 'Іконка перед текстом додаткової кнопки. Оберіть «Без іконки», щоб показувати лише текст.',
 
+	/*Contact block (Lead capture)*/
+	'A centred heading and a form card on a photo, with a line of small print and a note under the form.' => 'Заголовок по центру та картка з формою на фото, з дрібним текстом і приміткою під формою.',
+	'contact,form,lead' => 'контакти,форма,заявка',
+	'Label Icon' => 'Іконка підпису',
+	'The icon before the label. Choose No icon to show the text alone.' => 'Іконка перед підписом. Оберіть «Без іконки», щоб показати лише текст.',
+	'Form' => 'Форма',
+	'Form Shortcode' => 'Шорткод форми',
+	'Paste the shortcode of your form, for example [formidable key="contact-form"]. Leave empty and no form is shown. The fields, their labels and the button text are edited in the form plugin.' => 'Вставте шорткод вашої форми, наприклад [formidable key="contact-form"]. Залиште порожнім, і форму не буде показано. Поля, їхні підписи та текст кнопки редагуються в плагіні форм.',
+	'Small Print' => 'Дрібний текст',
+	'The line under the form. Write a link as &lt;a href="https://example.com"&gt;the words&lt;/a&gt;. Leave empty to hide it.' => 'Рядок під формою. Посилання пишіть так: &lt;a href="https://example.com"&gt;слова&lt;/a&gt;. Залиште порожнім, щоб приховати.',
+	'A short line beside the small print, such as what the visitor gets. Leave empty to hide it.' => 'Короткий рядок поруч із дрібним текстом, наприклад що отримає відвідувач. Залиште порожнім, щоб приховати.',
+	'Note Icon' => 'Іконка примітки',
+	'The icon before the note. Choose No icon to show the text alone.' => 'Іконка перед приміткою. Оберіть «Без іконки», щоб показати лише текст.',
+	'The photo behind the section, fading into the page colour at the top. Leave empty for a plain background.' => 'Фото за секцією, що угорі плавно переходить у колір сторінки. Залиште порожнім для простого фону.',
+
 	/*Icon names, the options of an icon select (theme_icon_options() in functions.php). Phone is listed above with the shared words.*/
 	'Check' => 'Галочка',
 	'Send' => 'Надіслати',
@@ -327,7 +342,6 @@ return array(
 	'A centred banner with a heading and a button.' => 'Банер по центру із заголовком і кнопкою.',
 	'FAQ' => 'Поширені запитання',
 	'Contact' => 'Контакти',
-	'Contact details next to a pasted-in form.' => 'Контактні дані поруч зі вставленою формою.',
 	'About (About Page)' => 'Про нас (сторінка «Про нас»)',
 	'The About page\'s own version of the About section.' => 'Власна версія секції «Про нас» для сторінки «Про нас».',
 	'Already used on this page — remove the existing one to add it again.' => 'Уже використано на цій сторінці — видаліть наявний блок, щоб додати його знову.',

@@ -3,7 +3,7 @@
 	.home-faq, .home-faq *, .home-faq *::before, .home-faq *::after{box-sizing: border-box;}
 	/*With every field empty there would be a blank band holding nothing, so the whole section steps aside*/
 	.home-faq:not(:has(.content-width > *)){display: none;}
-	.home-faq h2, .home-faq p{margin: 0;}
+	.home-faq h2, .home-faq p, .home-faq details{margin: 0;}
 	.home-faq p{text-wrap: pretty;}
 	.home-faq .pill{margin: 0;}
 	/*A word too long for its box breaks instead of pushing a row wider. anywhere is for the text that is the only shrinkable item of its row, where the break has to be allowed before the box is sized.*/
@@ -40,7 +40,8 @@
 	.home-faq .faq-toggle .ico:last-child, .home-faq .faq-row[open] .faq-toggle .ico:first-child{display: none;}
 	.home-faq .faq-row[open] .faq-toggle .ico:last-child{display: block;}
 	.home-faq .faq-row[open] .faq-toggle{background: var(--color-1); color: var(--color-2);}
-	.home-faq .faq-answer{padding: 0 96px 30px 28px; font-size: var(--card-text); line-height: 1.6; color: var(--color-3);}
+	.home-faq .faq-answer{padding: 0 96px 30px 28px;}
+	.home-faq .faq-answer p{font-size: var(--card-text); line-height: 1.6; color: var(--color-3);}
 	.home-faq .faq-answer p + p{margin-top: var(--space-3);}
 	.home-faq .faq-answer a{color: var(--color-green);}
 
